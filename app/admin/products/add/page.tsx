@@ -1,0 +1,278 @@
+"use client"
+
+import type React from "react"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowLeft, Save, Package } from "lucide-react"
+import { ImageUpload } from "@/components/image-upload"
+
+interface Product {
+  id: string
+  name: string
+  price: number
+  description: string
+  category: string
+  imageUrl: string
+  createdAt: string
+}
+
+export default function AddProduct() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState("")
+  const router = useRouter()
+
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    description: "",
+    category: "",
+    imageUrl: "",
+  })
+
+  useEffect(() => {
+    const authenticated = localStorage.getItem("admin_authenticated")
+    if (authenticated !== "true") {
+      router.push("/admin")
+      return
+    }
+    setIsAuthenticated(true)
+  }, [router])
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    setError("")
+    setSuccess(false)
+  }
+
+  const handleImageUrlChange = (url: string) => {
+    setFormData((prev) => ({ ...prev, imageUrl: url }))
+    setError("")
+    setSuccess(false)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError("")
+
+    // Validation
+    if (!formData.name || !formData.price || !formData.description || !formData.category || !formData.imageUrl) {
+      setError("Please fill in all required fields.")
+      setIsLoading(false)
+      return
+    }
+
+    if (isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
+      setError("Please enter a valid price.")
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      // Create new product
+      const newProduct: Product = {
+        id: Date.now().toString(),
+        name: formData.name,
+        price: Number(formData.price),
+        description: formData.description,
+        category: formData.category,
+        imageUrl: formData.imageUrl,
+        createdAt: new Date().toISOString(),
+      }
+
+      // Save to localStorage
+      const existingProducts = JSON.parse(localStorage.getItem("haven_products") || "[]")
+      const updatedProducts = [...existingProducts, newProduct]
+      localStorage.setItem("haven_products", JSON.stringify(updatedProducts))
+
+      setSuccess(true)
+      setTimeout(() => {
+        router.push("/admin/products")
+      }, 2000)
+    } catch (err) {
+      setError("Failed to save product. Please try again.")
+    }
+
+    setIsLoading(false)
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-amber-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <p className="text-amber-700">Verifying authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-amber-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-amber-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                onClick={() => router.push("/admin/products")}
+                className="text-amber-700 hover:text-amber-800 hover:bg-amber-50"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Products
+              </Button>
+              <h1 className="text-xl font-bold text-amber-900">Add New Product</h1>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Card className="bg-white shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center text-gray-900">
+              <Package className="w-5 h-5 mr-2 text-amber-600" />
+              Product Information
+            </CardTitle>
+            <CardDescription>
+              Add a new furniture product, promotional offer, or special deal to your website.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <Alert className="border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-700">{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {success && (
+                <Alert className="border-green-200 bg-green-50">
+                  <AlertDescription className="text-green-700">
+                    Product added successfully! Redirecting to products page...
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Product Image */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Product Image *</Label>
+                <ImageUpload onImageUpload={handleImageUrlChange} currentImage={formData.imageUrl} />
+              </div>
+
+              {/* Product Name */}
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                  Product Name *
+                </Label>
+                <Input
+                  id="name"
+                  placeholder="e.g., Modern Oak Dining Table, December Sale - 50% Off"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  className="border-gray-200 focus:border-amber-500 focus:ring-amber-500"
+                  required
+                />
+              </div>
+
+              {/* Category */}
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-sm font-medium text-gray-700">
+                  Category *
+                </Label>
+                <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
+                  <SelectTrigger className="border-gray-200 focus:border-amber-500 focus:ring-amber-500">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="living-room">Living Room</SelectItem>
+                    <SelectItem value="bedroom">Bedroom</SelectItem>
+                    <SelectItem value="dining">Dining Room</SelectItem>
+                    <SelectItem value="office">Office</SelectItem>
+                    <SelectItem value="new-arrivals">New Arrivals</SelectItem>
+                    <SelectItem value="sale">Sale & Offers</SelectItem>
+                    <SelectItem value="promotion">Special Promotion</SelectItem>
+                    <SelectItem value="bogo">Buy One Get One</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Price */}
+              <div className="space-y-2">
+                <Label htmlFor="price" className="text-sm font-medium text-gray-700">
+                  Price (USD) *
+                </Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-3 text-gray-500">$</span>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.price}
+                    onChange={(e) => handleInputChange("price", e.target.value)}
+                    className="pl-8 border-gray-200 focus:border-amber-500 focus:ring-amber-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-sm font-medium text-gray-700">
+                  Description *
+                </Label>
+                <Textarea
+                  id="description"
+                  placeholder="Describe the product, its features, materials, or promotional details..."
+                  value={formData.description}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  className="min-h-[100px] border-gray-200 focus:border-amber-500 focus:ring-amber-500"
+                  required
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end space-x-4 pt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push("/admin/products")}
+                  className="border-gray-200 text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isLoading} className="bg-amber-600 hover:bg-amber-700 text-white">
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Save Product
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  )
+}
