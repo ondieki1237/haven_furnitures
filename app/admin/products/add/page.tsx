@@ -1,35 +1,25 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Save, Package } from "lucide-react"
-import { ImageUpload } from "@/components/image-upload"
-
-interface Product {
-  id: string
-  name: string
-  price: number
-  description: string
-  category: string
-  imageUrl: string
-  createdAt: string
-}
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ArrowLeft, Save, Package } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function AddProduct() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState("")
-  const router = useRouter()
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -37,85 +27,109 @@ export default function AddProduct() {
     description: "",
     category: "",
     imageUrl: "",
-  })
+  });
 
   useEffect(() => {
-    const authenticated = localStorage.getItem("admin_authenticated")
+    const authenticated = localStorage.getItem("admin_authenticated");
     if (authenticated !== "true") {
-      router.push("/admin")
-      return
+      router.push("/admin");
+      return;
     }
-    setIsAuthenticated(true)
-  }, [router])
+    setIsAuthenticated(true);
+  }, [router]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    setError("")
-    setSuccess(false)
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setError("");
+    setSuccess(false);
+  };
 
-  const handleImageUrlChange = (url: string) => {
-    setFormData((prev) => ({ ...prev, imageUrl: url }))
-    setError("")
-    setSuccess(false)
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+      setError("");
+      setSuccess(false);
+    }
+  };
+
+const uploadToCloudinary = async (file: File) => {
+  try {
+    console.log("Starting Cloudinary upload for file:", file.name, file.type, file.size);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "haven_furniture"); // Use the correct preset
+    formData.append("folder", "haven"); // Match the asset folder
+    formData.append("resource_type", "image"); // Explicitly set resource type
+    console.log("Cloudinary upload config:", { cloudName: "diaceq8bv", uploadPreset: "haven_furniture", folder: "haven" });
+
+    const response = await fetch(`https://api.cloudinary.com/v1_1/diaceq8bv/image/upload`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Cloudinary error response:", errorData);
+      throw new Error(`Image upload failed: ${errorData.error?.message || "Unknown error"}`);
+    }
+
+    const data = await response.json();
+    console.log("Cloudinary upload success:", data);
+    return data.secure_url as string;
+  } catch (error: any) {
+    console.error("Cloudinary upload failed:", error);
+    throw new Error(`Image upload failed: ${error.message}`);
   }
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     // Validation
-    if (!formData.name || !formData.price || !formData.description || !formData.category || !formData.imageUrl) {
-      setError("Please fill in all required fields.")
-      setIsLoading(false)
-      return
+    if (!formData.name || !formData.price || !formData.description || !formData.category || !imageFile) {
+      setError("Please fill in all required fields, including an image.");
+      setIsLoading(false);
+      return;
     }
 
     if (isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
-      setError("Please enter a valid price.")
-      setIsLoading(false)
-      return
+      setError("Please enter a valid price.");
+      setIsLoading(false);
+      return;
     }
 
     try {
-      // Create new product
-      const newProduct: Product = {
-        id: Date.now().toString(),
+      // 1️⃣ Upload image to Cloudinary
+      const imageUrl = await uploadToCloudinary(imageFile);
+
+      // 2️⃣ Save product in backend with Cloudinary URL
+      const productPayload = {
         name: formData.name,
         price: Number(formData.price),
         description: formData.description,
         category: formData.category,
-        imageUrl: formData.imageUrl,
-        createdAt: new Date().toISOString(),
+        imageUrl, // from Cloudinary
+      };
+      console.log("Submitting product:", productPayload);
+
+      const response = await api.createProduct(productPayload);
+
+      if (!response.success) {
+        throw new Error(response.message || "Failed to create product");
       }
 
-      // Save to localStorage
-      const existingProducts = JSON.parse(localStorage.getItem("haven_products") || "[]")
-      const updatedProducts = [...existingProducts, newProduct]
-      localStorage.setItem("haven_products", JSON.stringify(updatedProducts))
-
-      setSuccess(true)
+      setSuccess(true);
       setTimeout(() => {
-        router.push("/admin/products")
-      }, 2000)
-    } catch (err) {
-      setError("Failed to save product. Please try again.")
+        router.push("/admin/products");
+      }, 1200);
+    } catch (err: any) {
+      setError(err.message || "Failed to save product. Please try again.");
     }
 
-    setIsLoading(false)
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-amber-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto mb-4"></div>
-          <p className="text-amber-700">Verifying authentication...</p>
-        </div>
-      </div>
-    )
-  }
+    setIsLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-amber-50">
@@ -170,7 +184,13 @@ export default function AddProduct() {
               {/* Product Image */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Product Image *</Label>
-                <ImageUpload onImageUpload={handleImageUrlChange} currentImage={formData.imageUrl} />
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="border-gray-200 focus:border-amber-500 focus:ring-amber-500"
+                  required
+                />
               </div>
 
               {/* Product Name */}
@@ -198,14 +218,11 @@ export default function AddProduct() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="living-room">Living Room</SelectItem>
-                    <SelectItem value="bedroom">Bedroom</SelectItem>
-                    <SelectItem value="dining">Dining Room</SelectItem>
-                    <SelectItem value="office">Office</SelectItem>
-                    <SelectItem value="new-arrivals">New Arrivals</SelectItem>
-                    <SelectItem value="sale">Sale & Offers</SelectItem>
-                    <SelectItem value="promotion">Special Promotion</SelectItem>
-                    <SelectItem value="bogo">Buy One Get One</SelectItem>
+                    <SelectItem value="sofas">Sofas</SelectItem>
+                    <SelectItem value="beds">Beds</SelectItem>
+                    <SelectItem value="dining-sets">Dining Sets</SelectItem>
+                    <SelectItem value="tv-stands">TV Stands</SelectItem>
+                    <SelectItem value="shoe-racks">Shoe Racks</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -274,5 +291,5 @@ export default function AddProduct() {
         </Card>
       </main>
     </div>
-  )
+  );
 }

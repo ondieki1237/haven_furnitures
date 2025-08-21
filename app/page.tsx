@@ -8,16 +8,9 @@ import { Star, ShoppingCart, Heart, Search, Menu, User, Sparkles } from "lucide-
 import { InterestForm } from "@/components/interest-form"
 import { SearchDropdown } from "@/components/search-dropdown"
 import Link from "next/link"
+import { api, type Product as BackendProduct } from "@/lib/api"
 
-interface Product {
-  id: string
-  name: string
-  price: number
-  description: string
-  category: string
-  imageUrl: string
-  createdAt: string
-}
+type Product = BackendProduct
 
 export default function HomePage() {
   const [adminProducts, setAdminProducts] = useState<Product[]>([])
@@ -25,17 +18,20 @@ export default function HomePage() {
   const [showSearch, setShowSearch] = useState(false)
 
   useEffect(() => {
-    const savedProducts = localStorage.getItem("haven_products")
-    if (savedProducts) {
-      setAdminProducts(JSON.parse(savedProducts))
-    }
-    setIsLoaded(true)
+    ;(async () => {
+      try {
+        const res = await api.getProducts()
+        if (res.success && res.data) setAdminProducts(res.data)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setIsLoaded(true)
+      }
+    })()
   }, [])
 
-  const newArrivals = adminProducts.filter((product) => product.category === "new-arrivals").slice(0, 3)
-  const saleProducts = adminProducts
-    .filter((product) => product.category === "sale" || product.category === "promotion" || product.category === "bogo")
-    .slice(0, 3)
+  const newArrivals: Product[] = []
+  const saleProducts: Product[] = []
   const featuredProducts = adminProducts.slice(0, 6) // Show latest 6 products
 
   return (
@@ -200,7 +196,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {newArrivals.map((product, index) => (
                 <Card
-                  key={product.id}
+                  key={product._id}
                   className={`group cursor-pointer hover:shadow-2xl transition-all duration-700 border-border hover:border-primary/30 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-4 hover:rotate-1 relative overflow-hidden`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -248,7 +244,7 @@ export default function HomePage() {
                       </div>
                       <div className="pt-2 border-t border-border">
                         <InterestForm
-                          productId={product.id}
+                          productId={product._id}
                           productName={product.name}
                           productPrice={product.price.toString()}
                           triggerClassName="w-full"
@@ -274,7 +270,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {saleProducts.map((product, index) => (
                 <Card
-                  key={product.id}
+                  key={product._id}
                   className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-3`}
                 >
                   <CardContent className="p-0">
@@ -321,7 +317,7 @@ export default function HomePage() {
                       </div>
                       <div className="pt-2 border-t border-border">
                         <InterestForm
-                          productId={product.id}
+                          productId={product._id}
                           productName={product.name}
                           productPrice={product.price.toString()}
                           triggerClassName="w-full"
@@ -423,7 +419,7 @@ export default function HomePage() {
             {featuredProducts.length > 0
               ? featuredProducts.map((product, index) => (
                   <Card
-                    key={product.id}
+                    key={product._id}
                     className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-3`}
                   >
                     <CardContent className="p-0">
@@ -463,7 +459,7 @@ export default function HomePage() {
                         </div>
                         <div className="pt-2 border-t border-border">
                           <InterestForm
-                            productId={product.id}
+                            productId={product._id}
                             productName={product.name}
                             productPrice={product.price.toString()}
                             triggerClassName="w-full"

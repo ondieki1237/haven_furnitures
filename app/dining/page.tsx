@@ -7,26 +7,22 @@ import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart, Heart, Search, ArrowLeft } from "lucide-react"
 import { InterestForm } from "@/components/interest-form"
 import Link from "next/link"
+import { api, type Product as BackendProduct } from "@/lib/api"
 
-interface Product {
-  id: string
-  name: string
-  price: number
-  description: string
-  category: string
-  imageUrl: string
-  createdAt: string
-}
+type Product = BackendProduct
 
 export default function DiningPage() {
   const [adminProducts, setAdminProducts] = useState<Product[]>([])
 
   useEffect(() => {
-    const savedProducts = localStorage.getItem("haven_products")
-    if (savedProducts) {
-      const products = JSON.parse(savedProducts)
-      setAdminProducts(products.filter((p: Product) => p.category === "dining"))
-    }
+    ;(async () => {
+      try {
+        const res = await api.getProducts({ category: "dining-sets" })
+        if (res.success && res.data) setAdminProducts(res.data)
+      } catch (e) {
+        console.error(e)
+      }
+    })()
   }, [])
 
   const sampleProducts = [
@@ -142,7 +138,7 @@ export default function DiningPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {allProducts.map((product, index) => (
               <Card
-                key={product.id}
+                key={product._id}
                 className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${((index % 4) + 1) * 100} hover:-translate-y-3`}
               >
                 <CardContent className="p-0">
@@ -209,7 +205,7 @@ export default function DiningPage() {
                     </div>
                     <div className="pt-2 border-t border-border">
                       <InterestForm
-                        productId={product.id}
+                        productId={product._id}
                         productName={product.name}
                         productPrice={product.price.toString()}
                         triggerClassName="w-full"

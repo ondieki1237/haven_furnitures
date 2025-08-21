@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
   {
@@ -43,13 +43,13 @@ const productSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
 // Create indexes for better search performance
-productSchema.index({ name: "text", description: "text", category: "text" })
-productSchema.index({ category: 1 })
-productSchema.index({ featured: -1, createdAt: -1 })
-productSchema.index({ inStock: 1 })
+productSchema.index({ name: "text", description: "text", category: "text" });
+productSchema.index({ category: 1 });
+productSchema.index({ featured: -1, createdAt: -1 });
+productSchema.index({ inStock: 1 });
 
-module.exports = mongoose.model("Product", productSchema)
+module.exports = mongoose.model("Product", productSchema);

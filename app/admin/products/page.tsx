@@ -8,16 +8,9 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Plus, Search, Edit, Trash2, ArrowLeft, Package, ImageIcon } from "lucide-react"
+import { api, type Product as BackendProduct } from "@/lib/api"
 
-interface Product {
-  id: string
-  name: string
-  price: number
-  description: string
-  category: string
-  imageUrl: string
-  createdAt: string
-}
+type Product = BackendProduct
 
 export default function ProductsManagement() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -34,18 +27,27 @@ export default function ProductsManagement() {
     }
     setIsAuthenticated(true)
 
-    // Load products from localStorage
-    const savedProducts = localStorage.getItem("haven_products")
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts))
-    }
-    setIsLoading(false)
+    ;(async () => {
+      try {
+        const res = await api.getProducts()
+        if (res.success && res.data) setProducts(res.data)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setIsLoading(false)
+      }
+    })()
   }, [router])
 
-  const deleteProduct = (id: string) => {
-    const updatedProducts = products.filter((product) => product.id !== id)
-    setProducts(updatedProducts)
-    localStorage.setItem("haven_products", JSON.stringify(updatedProducts))
+  const deleteProduct = async (id: string) => {
+    try {
+      const res = await api.deleteProduct(id)
+      if (res.success) {
+        setProducts((prev) => prev.filter((p) => p._id !== id))
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const filteredProducts = products.filter(
@@ -157,7 +159,7 @@ export default function ProductsManagement() {
                   </TableHeader>
                   <TableBody>
                     {filteredProducts.map((product) => (
-                      <TableRow key={product.id} className="hover:bg-amber-50">
+                      <TableRow key={product._id} className="hover:bg-amber-50">
                         <TableCell>
                           <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
                             {product.imageUrl ? (
@@ -187,7 +189,7 @@ export default function ProductsManagement() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => router.push(`/admin/products/edit/${product.id}`)}
+                              onClick={() => router.push(`/admin/products/edit/${product._id}`)}
                               className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                             >
                               <Edit className="w-4 h-4" />
@@ -195,7 +197,7 @@ export default function ProductsManagement() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => deleteProduct(product.id)}
+                              onClick={() => deleteProduct(product._id)}
                               className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
                               <Trash2 className="w-4 h-4" />
