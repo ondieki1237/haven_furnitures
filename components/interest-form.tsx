@@ -15,9 +15,10 @@ interface InterestFormProps {
   productName: string
   productPrice: string
   triggerClassName?: string
+  cartProducts?: any[] // Add this line
 }
 
-export function InterestForm({ productId, productName, productPrice, triggerClassName }: InterestFormProps) {
+export function InterestForm({ productId, productName, productPrice, triggerClassName, cartProducts }: InterestFormProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -35,8 +36,17 @@ export function InterestForm({ productId, productName, productPrice, triggerClas
     })
   }
 
+  const validatePhone = (phone: string) => {
+    // Accepts 07XXXXXXXX or 2547XXXXXXXX (Kenya), adjust as needed
+    return /^(\+?254|0)?7\d{8}$/.test(phone)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validatePhone(formData.phone)) {
+      alert("Please enter a valid phone number (e.g. 0712345678 or 254712345678).")
+      return
+    }
     setIsSubmitting(true)
 
     try {

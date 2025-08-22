@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, Heart, Search, Menu, User, Sparkles } from "lucide-react"
+import { Star, ShoppingCart, Heart, Search, Menu, User, Sparkles, X } from "lucide-react"
 import { InterestForm } from "@/components/interest-form"
 import { SearchDropdown } from "@/components/search-dropdown"
 import Link from "next/link"
@@ -17,8 +17,24 @@ export default function HomePage() {
   const [adminProducts, setAdminProducts] = useState<Product[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
+  const [cart, setCart] = useState<Product[]>([])
+  const [showCart, setShowCart] = useState(false)
   const router = useRouter()
 
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem("cart")
+    if (savedCart) {
+      setCart(JSON.parse(savedCart))
+    }
+  }, [])
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart))
+  }, [cart])
+
+  // Fetch products
   useEffect(() => {
     ;(async () => {
       try {
@@ -36,11 +52,82 @@ export default function HomePage() {
   const saleProducts: Product[] = []
   const featuredProducts = adminProducts.slice(0, 6) // Show latest 6 products
 
+  // Add to cart handler
+  const handleAddToCart = (product: Product) => {
+    setCart((prev) => {
+      const exists = prev.find((p) => p._id === product._id)
+      if (exists) return prev // Prevent duplicates
+      return [...prev, product]
+    })
+  }
+
+  // Remove from cart handler
+  const handleRemoveFromCart = (productId: string) => {
+    setCart((prev) => prev.filter((p) => p._id !== productId))
+  }
+
+  // Toggle cart modal
+  const toggleCart = () => {
+    setShowCart(!showCart)
+  }
+
   return (
     <div
       className={`min-h-screen bg-background transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}
     >
       {showSearch && <SearchDropdown onClose={() => setShowSearch(false)} />}
+
+      {/* Cart Modal */}
+      {showCart && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-end">
+          <div className="bg-background w-full max-w-md h-full p-6 overflow-y-auto shadow-xl animate-in slide-in-from-right duration-500">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-foreground font-sans">Your Cart</h2>
+              <Button variant="ghost" size="icon" onClick={toggleCart}>
+                <X className="h-6 w-6" />
+              </Button>
+            </div>
+            {cart.length === 0 ? (
+              <p className="text-muted-foreground font-serif text-center">Your cart is empty</p>
+            ) : (
+              <div className="space-y-4">
+                {cart.map((item) => (
+                  <div key={item._id} className="flex items-center gap-4 border-b pb-4">
+                    <img
+                      src={item.imageUrl || "/placeholder.svg"}
+                      alt={item.name}
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-foreground font-sans">{item.name}</h4>
+                      <p className="text-sm text-muted-foreground font-serif">${item.price}</p>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleRemoveFromCart(item._id)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <div className="mt-6">
+                  <p className="text-lg font-bold text-foreground font-sans">
+                    Total: ${cart.reduce((sum, item) => sum + Number(item.price), 0).toFixed(2)}
+                  </p>
+                  <InterestForm
+                    productId={cart.map(item => item._id).join(",")}
+                    productName={cart.map(item => item.name).join(", ")}
+                    productPrice={cart.reduce((sum, item) => sum + Number(item.price), 0).toString()}
+                    triggerClassName="w-full mt-4 bg-primary hover:bg-primary/90"
+                    cartProducts={cart}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border animate-in slide-in-from-top duration-500 shadow-sm">
@@ -49,7 +136,7 @@ export default function HomePage() {
             <div className="flex items-center">
               <Link href="/">
                 <h1 className="text-2xl font-bold text-primary font-sans hover:scale-110 transition-all duration-500 cursor-pointer animate-in fade-in-50 duration-700 hover:text-primary/80 relative group">
-                 Furnitures
+                  Haven
                   <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
                 </h1>
               </Link>
@@ -114,9 +201,15 @@ export default function HomePage() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:-rotate-12"
+                className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:-rotate-12 relative"
+                onClick={toggleCart}
               >
                 <ShoppingCart className="h-5 w-5" />
+                {cart.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full px-2 py-0.5 font-bold shadow">
+                    {cart.length}
+                  </span>
+                )}
               </Button>
               <Button
                 variant="ghost"
@@ -138,74 +231,72 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative h-[700px] bg-background overflow-hidden">
-  {/* Background accents */}
-  <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/40 to-accent/20"></div>
-  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(139,90,43,0.08),transparent_60%)]"></div>
+<section className="relative h-[600px] sm:h-[700px] bg-background overflow-hidden">
+  {/* Background Image and Overlay */}
+  <div className="absolute inset-0">
+    <img
+      src="/hero.png"
+      alt="Luxury furniture showcase"
+      className="w-full h-full object-cover object-center opacity-80"
+    />
+    <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-black/30 to-transparent"></div>
+  </div>
+  {/* Subtle Radial Gradient for Depth */}
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,90,43,0.15),transparent_60%)]"></div>
 
-  <div className="relative max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
-    {/* Left Content */}
-    <div className="max-w-xl space-y-8 animate-in slide-in-from-left duration-1000">
-      <h1 className="text-5xl md:text-6xl font-bold leading-tight font-sans text-foreground">
-        Make Experience{" "}
-        <span className="text-primary">Luxury</span>
-        <br />
-        Embrace{" "}
-        <span className="text-muted-foreground">Simplicity</span>
-      </h1>
+  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-full flex items-center">
+    {/* Content Container */}
+    <div className="max-w-2xl space-y-6 sm:space-y-8 z-10 animate-in slide-in-from-left duration-1000">
+      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight font-sans text-white tracking-tight">
+  Elevate Your Space with{" "}
+  <span className="text-brown-600 animate-in fade-in-50 duration-1000 delay-200">Luxury</span>
+  <br />
+  Embrace{" "}
+  <span className="text-white animate-in fade-in-50 duration-1000 delay-300">Timeless Simplicity</span>
+</h1>
 
-      <p className="text-lg md:text-xl text-muted-foreground font-serif leading-relaxed">
-        Transform your space with our exquisite collection of furniture 
-        that combines impeccable design with ultimate comfort.
+
+        
+      <p className="text-base sm:text-lg lg:text-xl text-primary-foreground/90 font-serif leading-relaxed max-w-md animate-in fade-in-50 duration-1000 delay-400">
+        Discover our curated collection of premium furniture, blending exquisite design with unparalleled comfort.
       </p>
-
       {/* CTA Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4 animate-in slide-in-from-bottom duration-1000 delay-500">
         <Button
           size="lg"
-          className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          className="bg-brown-600 text-white hover:bg-brown-700 font-serif font-bold tracking-wide px-6 sm:px-8 py-3 rounded-xl border-2 border-brown-400 transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-brown-800/50 relative overflow-hidden group"
           onClick={() => router.push("/living-room")}
         >
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
           Shop Now
         </Button>
         <Button
           variant="outline"
           size="lg"
-          className="px-8 py-4 rounded-xl hover:scale-105 hover:bg-primary/5 hover:border-primary/40 transition-all duration-300"
+          className="px-6 sm:px-8 py-3 rounded-xl border-brown-400 text-brown-600 hover:bg-brown-100/50 hover:border-brown-500 transition-all duration-300 hover:scale-105"
           onClick={() => router.push("/about")}
         >
-          About us
+          About Us
         </Button>
       </div>
-
       {/* Features */}
-      <div className="grid grid-cols-3 gap-6 pt-6 text-center md:text-left">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-4 sm:pt-6 text-center sm:text-left animate-in fade-in-50 duration-1000 delay-600">
         <div>
-          <h4 className="font-semibold text-lg">Quality</h4>
-          <p className="text-sm text-muted-foreground">Craftsmanship</p>
+          <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Quality</h4>
+          <p className="text-sm text-primary-foreground/80 font-serif">Unmatched Craftsmanship</p>
         </div>
         <div>
-          <h4 className="font-semibold text-lg">Style</h4>
-          <p className="text-sm text-muted-foreground">Modern & Elegant</p>
+          <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Style</h4>
+          <p className="text-sm text-primary-foreground/80 font-serif">Modern Elegance</p>
         </div>
         <div>
-          <h4 className="font-semibold text-lg">Comfort</h4>
-          <p className="text-sm text-muted-foreground">Ultimate Experience</p>
+          <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Comfort</h4>
+          <p className="text-sm text-primary-foreground/80 font-serif">Ultimate Relaxation</p>
         </div>
       </div>
-    </div>
-
-    {/* Right Image */}
-    <div className="absolute right-0 top-0 h-full w-1/2 hidden lg:block">
-      <img
-        src="/luxury-living-room.png"
-        alt="Luxury furniture"
-        className="h-full w-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-700"
-      />
     </div>
   </div>
 </section>
-
 
       {newArrivals.length > 0 && (
         <section className="py-16 bg-accent/10 relative overflow-hidden">
@@ -262,6 +353,7 @@ export default function HomePage() {
                         <Button
                           size="sm"
                           className="bg-primary hover:bg-primary/90 font-serif hover:scale-110 transition-all duration-300 hover:shadow-lg relative overflow-hidden group/btn"
+                          onClick={() => handleAddToCart(product)}
                         >
                           <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></span>
                           <ShoppingCart className="h-4 w-4 mr-2" />
@@ -336,6 +428,7 @@ export default function HomePage() {
                         <Button
                           size="sm"
                           className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200"
+                          onClick={() => handleAddToCart(product)}
                         >
                           <ShoppingCart className="h-4 w-4 mr-2" />
                           Add to Cart
@@ -467,6 +560,7 @@ export default function HomePage() {
                           <Button
                             size="sm"
                             className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200"
+                            onClick={() => handleAddToCart(product)}
                           >
                             <ShoppingCart className="h-4 w-4 mr-2" />
                             Add to Cart
@@ -486,26 +580,30 @@ export default function HomePage() {
                 ))
               : [
                   {
+                    _id: "default-1",
                     name: "Modern Sectional Sofa",
-                    price: "$2,499",
-                    originalPrice: "$2,999",
+                    price: 2499,
+                    description: "A stylish and comfortable sectional sofa",
                     image: "modern gray sectional sofa",
                     rating: 4.8,
                     reviews: 124,
                     badge: "Best Seller",
                   },
                   {
+                    _id: "default-2",
                     name: "Oak Dining Table",
-                    price: "$1,299",
+                    price: 1299,
+                    description: "Solid oak dining table with modern design",
                     image: "solid oak dining table with modern design",
                     rating: 4.9,
                     reviews: 89,
                     badge: "New",
                   },
                   {
+                    _id: "default-3",
                     name: "Ergonomic Office Chair",
-                    price: "$599",
-                    originalPrice: "$799",
+                    price: 599,
+                    description: "Modern ergonomic office chair in black",
                     image: "modern ergonomic office chair in black",
                     rating: 4.7,
                     reviews: 156,
@@ -513,7 +611,7 @@ export default function HomePage() {
                   },
                 ].map((product, index) => (
                   <Card
-                    key={product.name}
+                    key={product._id}
                     className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-3`}
                   >
                     <CardContent className="p-0">
@@ -561,16 +659,12 @@ export default function HomePage() {
                         </div>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <span className="text-xl font-bold text-primary font-sans">{product.price}</span>
-                            {product.originalPrice && (
-                              <span className="text-sm text-muted-foreground line-through font-serif">
-                                {product.originalPrice}
-                              </span>
-                            )}
+                            <span className="text-xl font-bold text-primary font-sans">${product.price}</span>
                           </div>
                           <Button
                             size="sm"
                             className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200"
+                            onClick={() => handleAddToCart(product)}
                           >
                             <ShoppingCart className="h-4 w-4 mr-2" />
                             Add to Cart
@@ -578,9 +672,9 @@ export default function HomePage() {
                         </div>
                         <div className="pt-2 border-t border-border">
                           <InterestForm
-                            productId={`default-${index}`}
+                            productId={product._id}
                             productName={product.name}
-                            productPrice={product.price.replace("$", "")}
+                            productPrice={product.price.toString()}
                             triggerClassName="w-full"
                           />
                         </div>
@@ -623,141 +717,130 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-
       <footer className="bg-card py-12 border-t border-border">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    {/* Mobile: Two columns, Desktop: Four columns */}
-    <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-8">
-      {/* Column 1: Brand */}
-      <div className="animate-in fade-in-50 duration-600">
-        <h4 className="text-lg font-bold text-foreground mb-4 font-sans">Haven Furnitures</h4>
-        <p className="text-muted-foreground font-serif">
-          Creating beautiful spaces with premium furniture since 2020.
-        </p>
-        <div className="mt-4 pt-4 border-t border-border">
-          <h5 className="font-semibold text-foreground mb-2 font-sans text-sm">Business Hours</h5>
-          <div className="text-sm text-muted-foreground font-serif space-y-1">
-            <p>Mon - Sat: 8:00 AM - 7:00 PM</p>
-            <p>Sunday: 12:00 PM - 6:00 PM</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-8">
+            <div className="animate-in fade-in-50 duration-600">
+              <h4 className="text-lg font-bold text-foreground mb-4 font-sans">Haven Furnitures</h4>
+              <p className="text-muted-foreground font-serif">
+                Creating beautiful spaces with premium furniture since 2020.
+              </p>
+              <div className="mt-4 pt-4 border-t border-border">
+                <h5 className="font-semibold text-foreground mb-2 font-sans text-sm">Business Hours</h5>
+                <div className="text-sm text-muted-foreground font-serif space-y-1">
+                  <p>Mon - Sat: 8:00 AM - 7:00 PM</p>
+                  <p>Sunday: 12:00 PM - 6:00 PM</p>
+                </div>
+              </div>
+            </div>
+            <div className="animate-in fade-in-50 duration-600 delay-100">
+              <h5 className="font-semibold text-foreground mb-4 font-sans">Shop</h5>
+              <ul className="space-y-2 text-muted-foreground font-serif">
+                <li>
+                  <Link href="/living-room" className="hover:text-primary transition-colors duration-300">
+                    Sofas
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/bedroom" className="hover:text-primary transition-colors duration-300">
+                    Beds
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dining" className="hover:text-primary transition-colors duration-300">
+                    Dining Sets
+                  </Link>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary transition-colors duration-300">
+                    TV Stands
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary transition-colors duration-300">
+                    Shoe Racks
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className="animate-in fade-in-50 duration-600 delay-200">
+              <h5 className="font-semibold text-foreground mb-4 font-sans">Support</h5>
+              <ul className="space-y-2 text-muted-foreground font-serif">
+                <li>
+                  <Link href="/contact" className="hover:text-primary transition-colors duration-300">
+                    Contact Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/faq" className="hover:text-primary transition-colors duration-300">
+                    FAQ
+                  </Link>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary transition-colors duration-300">
+                    Shipping Info
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary transition-colors duration-300">
+                    Returns
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className="animate-in fade-in-50 duration-600 delay-300">
+              <h5 className="font-semibold text-foreground mb-4 font-sans">Company</h5>
+              <ul className="space-y-2 text-muted-foreground font-serif">
+                <li>
+                  <Link href="/about" className="hover:text-primary transition-colors duration-300">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary transition-colors duration-300">
+                    Careers
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary transition-colors duration-300">
+                    Press
+                  </a>
+                </li>
+                <li>
+                  <Link href="/privacy" className="hover:text-primary transition-colors duration-300">
+                    Privacy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-border mt-8 pt-8">
+            <div className="flex flex-col items-center justify-center space-y-4 animate-in fade-in-50 duration-800">
+              <div className="flex items-center space-x-3">
+                <img
+                  src="/images/smo-logo.png"
+                  alt="SMO Logo"
+                  className="h-8 w-8 hover:scale-110 transition-transform duration-300"
+                />
+                <p className="text-muted-foreground font-serif text-sm">
+                  Designed, built and managed by{" "}
+                  <a
+                    href="https://ondieki1237.github.io/sethbellarin/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:text-primary/80 transition-colors duration-300 font-semibold hover:underline"
+                  >
+                    Seth Bellarin
+                  </a>
+                </p>
+              </div>
+              <p className="text-muted-foreground font-serif text-sm">
+                &copy; 2024 Haven Furnitures. All rights reserved.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Column 2: Shop */}
-      <div className="animate-in fade-in-50 duration-600 delay-100">
-        <h5 className="font-semibold text-foreground mb-4 font-sans">Shop</h5>
-        <ul className="space-y-2 text-muted-foreground font-serif">
-          <li>
-            <Link href="/living-room" className="hover:text-primary transition-colors duration-300">
-              Sofas
-            </Link>
-          </li>
-          <li>
-            <Link href="/bedroom" className="hover:text-primary transition-colors duration-300">
-              Beds
-            </Link>
-          </li>
-          <li>
-            <Link href="/dining" className="hover:text-primary transition-colors duration-300">
-              Dining Sets
-            </Link>
-          </li>
-          <li>
-            <a href="#" className="hover:text-primary transition-colors duration-300">
-              TV Stands
-            </a>
-          </li>
-          <li>
-            <a href="#" className="hover:text-primary transition-colors duration-300">
-              Shoe Racks
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      {/* Column 3: Support */}
-      <div className="animate-in fade-in-50 duration-600 delay-200">
-        <h5 className="font-semibold text-foreground mb-4 font-sans">Support</h5>
-        <ul className="space-y-2 text-muted-foreground font-serif">
-          <li>
-            <Link href="/contact" className="hover:text-primary transition-colors duration-300">
-              Contact Us
-            </Link>
-          </li>
-          <li>
-            <Link href="/faq" className="hover:text-primary transition-colors duration-300">
-              FAQ
-            </Link>
-          </li>
-          <li>
-            <a href="#" className="hover:text-primary transition-colors duration-300">
-              Shipping Info
-            </a>
-          </li>
-          <li>
-            <a href="#" className="hover:text-primary transition-colors duration-300">
-              Returns
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      {/* Column 4: Company */}
-      <div className="animate-in fade-in-50 duration-600 delay-300">
-        <h5 className="font-semibold text-foreground mb-4 font-sans">Company</h5>
-        <ul className="space-y-2 text-muted-foreground font-serif">
-          <li>
-            <Link href="/about" className="hover:text-primary transition-colors duration-300">
-              About Us
-            </Link>
-          </li>
-          <li>
-            <a href="#" className="hover:text-primary transition-colors duration-300">
-              Careers
-            </a>
-          </li>
-          <li>
-            <a href="#" className="hover:text-primary transition-colors duration-300">
-              Press
-            </a>
-          </li>
-          <li>
-            <Link href="/privacy" className="hover:text-primary transition-colors duration-300">
-              Privacy
-            </Link>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    {/* Footer bottom */}
-    <div className="border-t border-border mt-8 pt-8">
-      <div className="flex flex-col items-center justify-center space-y-4 animate-in fade-in-50 duration-800">
-        <div className="flex items-center space-x-3">
-          <img
-            src="/images/smo-logo.png"
-            alt="SMO Logo"
-            className="h-8 w-8 hover:scale-110 transition-transform duration-300"
-          />
-          <p className="text-muted-foreground font-serif text-sm">
-            Designed, built and managed by{" "}
-            <a
-              href="https://ondieki1237.github.io/sethbellarin/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:text-primary/80 transition-colors duration-300 font-semibold hover:underline"
-            >
-              Seth Bellarin
-            </a>
-          </p>
-        </div>
-        <p className="text-muted-foreground font-serif text-sm">
-          &copy; 2024 Haven Furnitures. All rights reserved.
-        </p>
-      </div>
-    </div>
-  </div>
-</footer>
+      </footer>
     </div>
   )
 }
