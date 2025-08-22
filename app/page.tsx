@@ -9,6 +9,7 @@ import { InterestForm } from "@/components/interest-form"
 import { SearchDropdown } from "@/components/search-dropdown"
 import Link from "next/link"
 import { api, type Product as BackendProduct } from "@/lib/api"
+import { useRouter } from "next/navigation"
 
 type Product = BackendProduct
 
@@ -16,6 +17,7 @@ export default function HomePage() {
   const [adminProducts, setAdminProducts] = useState<Product[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     ;(async () => {
@@ -47,7 +49,7 @@ export default function HomePage() {
             <div className="flex items-center">
               <Link href="/">
                 <h1 className="text-2xl font-bold text-primary font-sans hover:scale-110 transition-all duration-500 cursor-pointer animate-in fade-in-50 duration-700 hover:text-primary/80 relative group">
-                  Haven Furnitures
+                 Furnitures
                   <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
                 </h1>
               </Link>
@@ -136,50 +138,74 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative h-[600px] bg-gradient-to-br from-background via-muted/50 to-accent/30 overflow-hidden">
-        <div className="absolute inset-0 bg-primary/5">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,90,43,0.1)_0%,transparent_50%)] animate-pulse"></div>
+      <section className="relative h-[700px] bg-background overflow-hidden">
+  {/* Background accents */}
+  <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/40 to-accent/20"></div>
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(139,90,43,0.08),transparent_60%)]"></div>
+
+  <div className="relative max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
+    {/* Left Content */}
+    <div className="max-w-xl space-y-8 animate-in slide-in-from-left duration-1000">
+      <h1 className="text-5xl md:text-6xl font-bold leading-tight font-sans text-foreground">
+        Make Experience{" "}
+        <span className="text-primary">Luxury</span>
+        <br />
+        Embrace{" "}
+        <span className="text-muted-foreground">Simplicity</span>
+      </h1>
+
+      <p className="text-lg md:text-xl text-muted-foreground font-serif leading-relaxed">
+        Transform your space with our exquisite collection of furniture 
+        that combines impeccable design with ultimate comfort.
+      </p>
+
+      {/* CTA Buttons */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Button
+          size="lg"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          onClick={() => router.push("/living-room")}
+        >
+          Shop Now
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          className="px-8 py-4 rounded-xl hover:scale-105 hover:bg-primary/5 hover:border-primary/40 transition-all duration-300"
+          onClick={() => router.push("/about")}
+        >
+          About us
+        </Button>
+      </div>
+
+      {/* Features */}
+      <div className="grid grid-cols-3 gap-6 pt-6 text-center md:text-left">
+        <div>
+          <h4 className="font-semibold text-lg">Quality</h4>
+          <p className="text-sm text-muted-foreground">Craftsmanship</p>
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-          <div className="max-w-2xl animate-in slide-in-from-left duration-1000">
-            <h2 className="text-5xl font-bold text-foreground mb-6 font-sans leading-tight animate-in fade-in-50 duration-1000 delay-200">
-              Transform Your Space with
-              <span className="text-primary animate-in slide-in-from-right duration-1000 delay-400 inline-block relative">
-                {" "}
-                Premium Furniture
-                <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-primary animate-pulse" />
-              </span>
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8 font-serif leading-relaxed animate-in fade-in-50 duration-1000 delay-600">
-              Discover our curated collection of modern, elegant furniture designed to make your house feel like home.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 animate-in slide-in-from-bottom duration-1000 delay-800">
-              <Button
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-serif hover:scale-110 transition-all duration-300 hover:shadow-xl hover:shadow-primary/25 relative overflow-hidden group"
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
-                Shop Collection
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="font-serif bg-transparent hover:scale-110 transition-all duration-300 hover:bg-primary/5 hover:border-primary/50 hover:shadow-lg"
-              >
-                View Catalog
-              </Button>
-            </div>
-          </div>
+        <div>
+          <h4 className="font-semibold text-lg">Style</h4>
+          <p className="text-sm text-muted-foreground">Modern & Elegant</p>
         </div>
-        <div className="absolute right-0 top-0 h-full w-1/2 hidden lg:block animate-in slide-in-from-right duration-1200 delay-300">
-          <img
-            src="/luxury-living-room.png"
-            alt="Modern living room furniture"
-            className="h-full w-full object-cover opacity-90 hover:scale-110 transition-transform duration-1000 hover:opacity-100"
-          />
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent to-background/20"></div>
+        <div>
+          <h4 className="font-semibold text-lg">Comfort</h4>
+          <p className="text-sm text-muted-foreground">Ultimate Experience</p>
         </div>
-      </section>
+      </div>
+    </div>
+
+    {/* Right Image */}
+    <div className="absolute right-0 top-0 h-full w-1/2 hidden lg:block">
+      <img
+        src="/luxury-living-room.png"
+        alt="Luxury furniture"
+        className="h-full w-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-700"
+      />
+    </div>
+  </div>
+</section>
+
 
       {newArrivals.length > 0 && (
         <section className="py-16 bg-accent/10 relative overflow-hidden">
@@ -597,131 +623,141 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card py-12 border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="animate-in fade-in-50 duration-600">
-              <h4 className="text-lg font-bold text-foreground mb-4 font-sans">Haven Furnitures</h4>
-              <p className="text-muted-foreground font-serif">
-                Creating beautiful spaces with premium furniture since 2020.
-              </p>
-              <div className="mt-4 pt-4 border-t border-border">
-                <h5 className="font-semibold text-foreground mb-2 font-sans text-sm">Business Hours</h5>
-                <div className="text-sm text-muted-foreground font-serif space-y-1">
-                  <p>Mon - Sat: 8:00 AM - 7:00 PM</p>
-                  <p>Sunday: 12:00 PM - 6:00 PM</p>
-                </div>
-              </div>
-            </div>
-            <div className="animate-in fade-in-50 duration-600 delay-100">
-              <h5 className="font-semibold text-foreground mb-4 font-sans">Shop</h5>
-              <ul className="space-y-2 text-muted-foreground font-serif">
-                <li>
-                  <Link href="/living-room" className="hover:text-primary transition-colors duration-300">
-                    Sofas
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/bedroom" className="hover:text-primary transition-colors duration-300">
-                    Beds
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/dining" className="hover:text-primary transition-colors duration-300">
-                    Dining Sets
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    TV Stands
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Shoe Racks
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="animate-in fade-in-50 duration-600 delay-200">
-              <h5 className="font-semibold text-foreground mb-4 font-sans">Support</h5>
-              <ul className="space-y-2 text-muted-foreground font-serif">
-                <li>
-                  <Link href="/contact" className="hover:text-primary transition-colors duration-300">
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/faq" className="hover:text-primary transition-colors duration-300">
-                    FAQ
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Shipping Info
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Returns
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="animate-in fade-in-50 duration-600 delay-300">
-              <h5 className="font-semibold text-foreground mb-4 font-sans">Company</h5>
-              <ul className="space-y-2 text-muted-foreground font-serif">
-                <li>
-                  <Link href="/about" className="hover:text-primary transition-colors duration-300">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Press
-                  </a>
-                </li>
-                <li>
-                  <Link href="/privacy" className="hover:text-primary transition-colors duration-300">
-                    Privacy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
 
-          <div className="border-t border-border mt-8 pt-8">
-            <div className="flex flex-col items-center justify-center space-y-4 animate-in fade-in-50 duration-800">
-              <div className="flex items-center space-x-3">
-                <img
-                  src="/images/smo-logo.png"
-                  alt="SMO Logo"
-                  className="h-8 w-8 hover:scale-110 transition-transform duration-300"
-                />
-                <p className="text-muted-foreground font-serif text-sm">
-                  Designed, built and managed by{" "}
-                  <a
-                    href="https://ondieki1237.github.io/sethbellarin/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 transition-colors duration-300 font-semibold hover:underline"
-                  >
-                    Seth Bellarin
-                  </a>
-                </p>
-              </div>
-              <p className="text-muted-foreground font-serif text-sm">
-                &copy; 2024 Haven Furnitures. All rights reserved.
-              </p>
-            </div>
+      <footer className="bg-card py-12 border-t border-border">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {/* Mobile: Two columns, Desktop: Four columns */}
+    <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-8">
+      {/* Column 1: Brand */}
+      <div className="animate-in fade-in-50 duration-600">
+        <h4 className="text-lg font-bold text-foreground mb-4 font-sans">Haven Furnitures</h4>
+        <p className="text-muted-foreground font-serif">
+          Creating beautiful spaces with premium furniture since 2020.
+        </p>
+        <div className="mt-4 pt-4 border-t border-border">
+          <h5 className="font-semibold text-foreground mb-2 font-sans text-sm">Business Hours</h5>
+          <div className="text-sm text-muted-foreground font-serif space-y-1">
+            <p>Mon - Sat: 8:00 AM - 7:00 PM</p>
+            <p>Sunday: 12:00 PM - 6:00 PM</p>
           </div>
         </div>
-      </footer>
+      </div>
+
+      {/* Column 2: Shop */}
+      <div className="animate-in fade-in-50 duration-600 delay-100">
+        <h5 className="font-semibold text-foreground mb-4 font-sans">Shop</h5>
+        <ul className="space-y-2 text-muted-foreground font-serif">
+          <li>
+            <Link href="/living-room" className="hover:text-primary transition-colors duration-300">
+              Sofas
+            </Link>
+          </li>
+          <li>
+            <Link href="/bedroom" className="hover:text-primary transition-colors duration-300">
+              Beds
+            </Link>
+          </li>
+          <li>
+            <Link href="/dining" className="hover:text-primary transition-colors duration-300">
+              Dining Sets
+            </Link>
+          </li>
+          <li>
+            <a href="#" className="hover:text-primary transition-colors duration-300">
+              TV Stands
+            </a>
+          </li>
+          <li>
+            <a href="#" className="hover:text-primary transition-colors duration-300">
+              Shoe Racks
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      {/* Column 3: Support */}
+      <div className="animate-in fade-in-50 duration-600 delay-200">
+        <h5 className="font-semibold text-foreground mb-4 font-sans">Support</h5>
+        <ul className="space-y-2 text-muted-foreground font-serif">
+          <li>
+            <Link href="/contact" className="hover:text-primary transition-colors duration-300">
+              Contact Us
+            </Link>
+          </li>
+          <li>
+            <Link href="/faq" className="hover:text-primary transition-colors duration-300">
+              FAQ
+            </Link>
+          </li>
+          <li>
+            <a href="#" className="hover:text-primary transition-colors duration-300">
+              Shipping Info
+            </a>
+          </li>
+          <li>
+            <a href="#" className="hover:text-primary transition-colors duration-300">
+              Returns
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      {/* Column 4: Company */}
+      <div className="animate-in fade-in-50 duration-600 delay-300">
+        <h5 className="font-semibold text-foreground mb-4 font-sans">Company</h5>
+        <ul className="space-y-2 text-muted-foreground font-serif">
+          <li>
+            <Link href="/about" className="hover:text-primary transition-colors duration-300">
+              About Us
+            </Link>
+          </li>
+          <li>
+            <a href="#" className="hover:text-primary transition-colors duration-300">
+              Careers
+            </a>
+          </li>
+          <li>
+            <a href="#" className="hover:text-primary transition-colors duration-300">
+              Press
+            </a>
+          </li>
+          <li>
+            <Link href="/privacy" className="hover:text-primary transition-colors duration-300">
+              Privacy
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    {/* Footer bottom */}
+    <div className="border-t border-border mt-8 pt-8">
+      <div className="flex flex-col items-center justify-center space-y-4 animate-in fade-in-50 duration-800">
+        <div className="flex items-center space-x-3">
+          <img
+            src="/images/smo-logo.png"
+            alt="SMO Logo"
+            className="h-8 w-8 hover:scale-110 transition-transform duration-300"
+          />
+          <p className="text-muted-foreground font-serif text-sm">
+            Designed, built and managed by{" "}
+            <a
+              href="https://ondieki1237.github.io/sethbellarin/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 transition-colors duration-300 font-semibold hover:underline"
+            >
+              Seth Bellarin
+            </a>
+          </p>
+        </div>
+        <p className="text-muted-foreground font-serif text-sm">
+          &copy; 2024 Haven Furnitures. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
     </div>
   )
 }

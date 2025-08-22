@@ -146,25 +146,8 @@ router.put("/:id", validateProduct, async (req, res) => {
 
 // DELETE /api/products/:id - Delete product
 router.delete("/:id", async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ success: false, message: "Invalid product ID" });
-    }
-
-    const product = await Product.findByIdAndDelete(req.params.id);
-
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
-    }
-
-    res.json({
-      success: true,
-      message: "Product deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    res.status(500).json({ success: false, message: "Failed to delete product" });
-  }
-});
+  await Product.findByIdAndDelete(req.params.id)
+  res.json({ success: true })
+})
 
 module.exports = router;

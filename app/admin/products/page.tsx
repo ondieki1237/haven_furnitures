@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Plus, Search, Edit, Trash2, ArrowLeft, Package, ImageIcon } from "lucide-react"
 import { api, type Product as BackendProduct } from "@/lib/api"
+import { toast, Toaster } from "sonner"
 
 type Product = BackendProduct
 
@@ -33,20 +34,28 @@ export default function ProductsManagement() {
         if (res.success && res.data) setProducts(res.data)
       } catch (e) {
         console.error(e)
+        toast.error("Failed to fetch products. Please try again.")
       } finally {
         setIsLoading(false)
       }
     })()
   }, [router])
 
-  const deleteProduct = async (id: string) => {
+  const deleteProduct = async (id: string, name: string) => {
+    const confirmed = window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)
+    if (!confirmed) return
+
     try {
       const res = await api.deleteProduct(id)
       if (res.success) {
         setProducts((prev) => prev.filter((p) => p._id !== id))
+        toast.success(`Product "${name}" deleted successfully.`)
+      } else {
+        toast.error("Failed to delete product. Please try again.")
       }
     } catch (e) {
       console.error(e)
+      toast.error("An error occurred while deleting the product.")
     }
   }
 
@@ -69,6 +78,7 @@ export default function ProductsManagement() {
 
   return (
     <div className="min-h-screen bg-amber-50">
+      <Toaster richColors position="top-right" />
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-amber-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -184,25 +194,23 @@ export default function ProductsManagement() {
                         <TableCell className="text-gray-500">
                           {new Date(product.createdAt).toLocaleDateString()}
                         </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => router.push(`/admin/products/edit/${product._id}`)}
-                              className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteProduct(product._id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
+                        <TableCell className="text-right space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => router.push(`/admin/products/edit/${product._id}`)}
+                            className="hover:bg-primary/10"
+                          >
+                            <Edit className="w-4 h-4 mr-1" /> Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => deleteProduct(product._id, product.name)}
+                            className="hover:bg-red-600 hover:text-white"
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" /> Delete
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
