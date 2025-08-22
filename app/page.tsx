@@ -333,66 +333,55 @@ export default function HomePage() {
       )}
 
       {/* Featured Categories */}
-      <section className="py-16 bg-background relative overflow-hidden">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-10 right-10 w-48 h-48 bg-accent/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <section className="py-24 bg-background relative overflow-hidden">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-10 right-10 w-48 h-48 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-12 animate-in fade-in-50 duration-800">
-            <h3 className="text-3xl font-bold text-foreground mb-4 font-sans relative inline-block">
+          <div className="text-center mb-16 animate-in fade-in-50 duration-800">
+            <h3 className="text-4xl font-bold text-primary mb-4 font-sans relative inline-block tracking-tight">
               Shop by Category
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
             </h3>
-            <p className="text-muted-foreground font-serif">Find the perfect pieces for every room in your home</p>
+            <p className="text-lg text-muted-foreground font-serif">Find the perfect pieces for every room in your home</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             {[
-              {
-                name: "Living Room",
-                image: "modern sofa and coffee table setup",
-                items: "120+ items",
-                href: "/living-room",
-              },
-              { name: "Bedroom", image: "elegant bedroom with modern bed frame", items: "85+ items", href: "/bedroom" },
-              { name: "Dining", image: "contemporary dining table and chairs", items: "65+ items", href: "/dining" },
-              { name: "Office", image: "modern home office desk and chair", items: "45+ items", href: "/office" },
+              { name: "Living Room", image: "/livingroom.png", items: "120+ items", href: "/living-room", color: "from-amber-200 to-amber-100" },
+              { name: "Bedroom", image: "/bed.png", items: "85+ items", href: "/bedroom", color: "from-amber-100 to-amber-50" },
+              { name: "Dining", image: "/dining.png", items: "65+ items", href: "/dining", color: "from-accent to-primary/10" },
+              { name: "Office", image: "/office.png", items: "45+ items", href: "/office", color: "from-primary/10 to-accent/10" },
             ].map((category, index) => (
               <Link key={category.name} href={category.href}>
                 <Card
-                  className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/30 animate-in slide-in-from-bottom duration-600 delay-${(index + 1) * 100} hover:-translate-y-3 hover:rotate-2 relative overflow-hidden`}
+                  className={`
+                    group cursor-pointer border-none shadow-lg hover:shadow-2xl transition-all duration-500
+                    rounded-3xl overflow-hidden bg-gradient-to-br ${category.color}
+                    hover:scale-105 animate-in slide-in-from-bottom duration-600 delay-${(index + 1) * 100}
+                    relative
+                  `}
                 >
-                  <div
-                    className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-                      index === 0
-                        ? "bg-gradient-to-br from-blue-500/5 to-transparent"
-                        : index === 1
-                          ? "bg-gradient-to-br from-purple-500/5 to-transparent"
-                          : index === 2
-                            ? "bg-gradient-to-br from-green-500/5 to-transparent"
-                            : "bg-gradient-to-br from-orange-500/5 to-transparent"
-                    }`}
-                  ></div>
                   <CardContent className="p-0 relative">
-                    <div className="aspect-square overflow-hidden rounded-t-lg relative">
+                    <div className="aspect-square overflow-hidden rounded-t-3xl relative">
                       <img
-                        src={`/abstract-geometric-shapes.png?height=300&width=300&query=${category.image}`}
+                        src={category.image}
                         alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/20">
-                        <div className="bg-white/90 rounded-full p-3 transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-200">
-                          <span className="text-2xl">
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/10">
+                        <div className="bg-white/90 rounded-full p-4 transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-200 shadow-lg">
+                          <span className="text-3xl">
                             {index === 0 ? "🛋️" : index === 1 ? "🛏️" : index === 2 ? "🍽️" : "💼"}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="p-6">
-                      <h4 className="text-xl font-semibold text-foreground mb-2 font-sans group-hover:text-primary transition-colors duration-500">
+                    <div className="p-8 text-center">
+                      <h4 className="text-2xl font-semibold text-primary mb-2 font-sans group-hover:text-amber-700 transition-colors duration-500">
                         {category.name}
                       </h4>
-                      <p className="text-muted-foreground font-serif group-hover:text-foreground transition-colors duration-300">
+                      <p className="text-base text-muted-foreground font-serif group-hover:text-foreground transition-colors duration-300">
                         {category.items}
                       </p>
                     </div>
