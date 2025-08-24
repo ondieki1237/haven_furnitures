@@ -19,6 +19,9 @@ export default function HomePage() {
   const [showSearch, setShowSearch] = useState(false)
   const [cart, setCart] = useState<Product[]>([])
   const [showCart, setShowCart] = useState(false)
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterMsg, setNewsletterMsg] = useState("");
   const router = useRouter()
 
   // Load cart from localStorage on mount
@@ -71,6 +74,30 @@ export default function HomePage() {
     setShowCart(!showCart)
   }
 
+  // Newsletter subscription handler
+  const handleNewsletterSubscribe = async () => {
+    setNewsletterLoading(true);
+    setNewsletterMsg("");
+    try {
+      const res = await fetch("http://localhost:5000/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNewsletterMsg("🎉 Subscription successful! Check your email.");
+        setNewsletterEmail("");
+      } else {
+        setNewsletterMsg(data.message || "❌ Subscription failed");
+      }
+    } catch {
+      setNewsletterMsg("⚠️ Something went wrong");
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
+
   return (
     <div
       className={`min-h-screen bg-background transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}
@@ -79,8 +106,14 @@ export default function HomePage() {
 
       {/* Cart Modal */}
       {showCart && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-end">
-          <div className="bg-background w-full max-w-md h-full p-6 overflow-y-auto shadow-xl animate-in slide-in-from-right duration-500">
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-end"
+          onClick={() => setShowCart(false)} // Close modal on overlay click
+        >
+          <div
+            className="bg-background w-full max-w-md h-full p-6 overflow-y-auto shadow-xl animate-in slide-in-from-right duration-500"
+            onClick={(e) => e.stopPropagation()} // Prevent clicks inside the cart from closing it
+          >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-foreground font-sans">Your Cart</h2>
               <Button variant="ghost" size="icon" onClick={toggleCart}>
@@ -702,17 +735,24 @@ export default function HomePage() {
             <input
               type="email"
               placeholder="Enter your email"
+              value={newsletterEmail}
+              onChange={e => setNewsletterEmail(e.target.value)}
               className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-primary-foreground/20 font-serif transition-all duration-500 focus:scale-105 hover:shadow-lg"
             />
             <Button
               variant="secondary"
               size="lg"
               className="font-serif hover:scale-110 transition-all duration-300 hover:shadow-xl relative overflow-hidden group"
+              onClick={handleNewsletterSubscribe}
+              disabled={newsletterLoading}
             >
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
-              Subscribe
+              {newsletterLoading ? "Subscribing..." : "Subscribe"}
             </Button>
           </div>
+          {newsletterMsg && (
+            <p className="text-primary-foreground mt-4">{newsletterMsg}</p>
+          )}
         </div>
       </section>
 
