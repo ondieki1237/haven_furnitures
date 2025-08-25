@@ -641,99 +641,177 @@ export default function HomePage() {
           )}
         </div>
       </section>
-
 {/* Testimonials Section */}
 {(() => {
   const [testimonials, setTestimonials] = useState([
     {
       id: 1,
-      name: "Jane Doe",
+      name: "Wanjiku Mwangi",
       rating: 5,
       comment: "Haven Furnitures transformed my living space with their stunning designs and top-notch quality. Highly recommend!",
-      image: "/images/testimonial-1.jpg",
+      image: "/placeholder-user.jpg",
     },
     {
       id: 2,
-      name: "John Smith",
+      name: "Kiptoo Ngetich",
       rating: 4,
       comment: "The furniture is both stylish and comfortable. The delivery was prompt, and customer service was excellent.",
-      image: "/images/testimonial-2.jpg",
+      image: "/placeholder-user.jpg",
     },
     {
       id: 3,
-      name: "Emily Johnson",
+      name: "Aisha Otieno",
       rating: 5,
       comment: "I love the modern elegance of their pieces. My dining set is a conversation starter at every gathering!",
-      image: "/images/testimonial-3.jpg",
+      image: "/placeholder-user.jpg",
+    },
+    {
+      id: 4,
+      name: "Musa Kipchoge",
+      rating: 5,
+      comment: "The quality of their office furniture is unmatched. My home office feels both professional and cozy now!",
+      image: "/placeholder-user.jpg",
+    },
+    {
+      id: 5,
+      name: "Fatuma Wambui",
+      rating: 4,
+      comment: "Amazing selection and great value for money. The sofa I bought is the highlight of my living room!",
+      image: "/placeholder-user.jpg",
     },
   ])
 
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length) // loops back to 0
+  }
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length) // loops back to last
+  }
+
   return (
     <section
-      className="py-16 bg-primary/10 border-t border-border"
+      className="py-16 bg-primary/10 border-t border-border relative overflow-hidden"
       aria-labelledby="testimonials-heading"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Background Animation */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,90,43,0.1),transparent_70%)] animate-pulse opacity-50"></div>  
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <h3
           id="testimonials-heading"
-          className="text-3xl font-bold text-primary text-center mb-10 font-sans animate-in fade-in-50 duration-800"
+          className="text-3xl font-bold text-primary text-center mb-10 font-sans animate-in fade-in zoom-in-50 duration-1000 ease-out"
         >
           What Our Customers Say
-          <div className="mt-2 mx-auto w-16 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
+          <div className="mt-2 mx-auto w-16 h-1 bg-gradient-to-r from-primary to-accent rounded-full transform scale-x-0 animate-in slide-in-from-bottom duration-1000 ease-out delay-200 origin-center"></div>
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <Card
-              key={testimonial.id}
-              className={`border-border hover:border-primary/30 hover:shadow-xl transition-all duration-500 animate-in slide-in-from-bottom duration-700 delay-${
-                (index + 1) * 150
-              }`}
-              role="article"
-              aria-label={`Testimonial by ${testimonial.name}`}
+        <div className="relative">
+          {/* Carousel Container */}
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-700 ease-in-out"
+              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  <img
-                    src={testimonial.image || `https://via.placeholder.com/150?text=${testimonial.name}`}
-                    alt={`${testimonial.name}'s avatar`}
-                    className="w-12 h-12 rounded-full object-cover mr-4"
-                    loading="lazy"
-                  />
-                  <div>
-                    <h4 className="text-lg font-semibold text-foreground font-sans">
-                      {testimonial.name}
-                    </h4>
-                    <div className="flex items-center" aria-label={`${testimonial.rating} out of 5 stars`}>
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="h-4 w-4 text-yellow-400 fill-yellow-400"
-                          aria-hidden="true"
+              {testimonials.map((testimonial, index) => (
+                <div
+                  key={testimonial.id}
+                  className="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-4"
+                >
+                  <Card
+                    className={`border-border hover:border-primary/30 hover:shadow-xl transition-all duration-700 ease-in-out animate-in slide-in-from-bottom zoom-in-75 duration-1000 delay-${
+                      (index + 1) * 200
+                    } hover:-translate-y-2 hover:scale-105 group relative overflow-hidden`}
+                    role="article"
+                    aria-label={`Testimonial by ${testimonial.name}`}
+                  >
+                    {/* Card Hover Background Animation */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-in-out"></div>
+
+                    <CardContent className="p-6 relative">
+                      <div className="flex items-center mb-4">
+                        <img
+                          src={testimonial.image}
+                          alt={`${testimonial.name}'s avatar`}
+                          className="w-12 h-12 rounded-full object-cover mr-4 transform scale-90 group-hover:scale-100 transition-transform duration-500 ease-in-out"
+                          loading="lazy"
                         />
-                      ))}
-                      {[...Array(5 - testimonial.rating)].map((_, i) => (
-                        <Star
-                          key={i + testimonial.rating}
-                          className="h-4 w-4 text-gray-300"
-                          aria-hidden="true"
-                        />
-                      ))}
-                    </div>
-                  </div>
+                        <div>
+                          <h4 className="text-lg font-semibold text-black font-sans transition-colors duration-500 ease-in-out group-hover:text-primary">
+                            {testimonial.name}
+                          </h4>
+                          <div className="flex items-center" aria-label={`${testimonial.rating} out of 5 stars`}>
+                            {[...Array(testimonial.rating)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className="h-4 w-4 text-yellow-400 fill-yellow-400 transform scale-90 group-hover:scale-110 transition-transform duration-300 ease-in-out"
+                                aria-hidden="true"
+                              />
+                            ))}
+                            {[...Array(5 - testimonial.rating)].map((_, i) => (
+                              <Star
+                                key={i + testimonial.rating}
+                                className="h-4 w-4 text-gray-300 transform scale-90 group-hover:scale-110 transition-transform duration-300 ease-in-out"
+                                aria-hidden="true"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      {/* ✅ Always visible text */}
+                      <p className="text-black font-serif text-sm leading-relaxed transition-opacity duration-500 ease-in-out">
+                        "{testimonial.comment}"
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
-                <p className="text-muted-foreground font-serif text-sm leading-relaxed">
-                  &quot;{testimonial.comment}&quot;
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation Buttons */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-background/80 hover:bg-primary/20 transition-all duration-300 ease-in-out hover:scale-110"
+            onClick={prevSlide}
+            aria-label="Previous testimonial"
+          >
+            <svg
+              className="h-6 w-6 text-primary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-background/80 hover:bg-primary/20 transition-all duration-300 ease-in-out hover:scale-110"
+            onClick={nextSlide}
+            aria-label="Next testimonial"
+          >
+            <svg
+              className="h-6 w-6 text-primary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Button>
         </div>
       </div>
     </section>
   )
 })()}
 
+    
       <footer className="bg-card py-12 border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-8">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { api } from "@/lib/api" // <-- Make sure this points to your real API helpers
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +11,11 @@ import { LayoutDashboard, Package, ShoppingCart, Users, TrendingUp, LogOut, Plus
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [adminEmail, setAdminEmail] = useState("")
+  const [productCount, setProductCount] = useState(0)
+  const [orderCount, setOrderCount] = useState(0)
+  const [userCount, setUserCount] = useState(0)
+  const [revenue, setRevenue] = useState(0)
+  const [interestsToday, setInterestsToday] = useState(0)
   const router = useRouter()
 
   useEffect(() => {
@@ -19,6 +25,19 @@ export default function AdminDashboard() {
     if (authenticated === "true" && email) {
       setIsAuthenticated(true)
       setAdminEmail(email)
+
+      // Fetch real data
+      api.getProducts().then(res => setProductCount(res.total || res.data.length))
+      api.getOrders?.().then(res => setOrderCount(res.total || res.data.length)) // if you have orders API
+      api.getUsers?.().then(res => setUserCount(res.total || res.data.length))   // if you have users API
+      api.getRevenue?.().then(res => setRevenue(res.total || 0))                 // if you have revenue API
+      api.getInterests().then(res => {
+        const today = new Date().toISOString().slice(0, 10);
+        const count = res.data.filter(
+          (i: any) => i.createdAt && i.createdAt.slice(0, 10) === today
+        ).length;
+        setInterestsToday(count);
+      });
     } else {
       router.push("/admin")
     }
@@ -88,7 +107,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Products</p>
-                  <p className="text-2xl font-bold text-gray-900">24</p>
+                  <p className="text-2xl font-bold text-gray-900">{productCount}</p>
                 </div>
                 <Package className="h-8 w-8 text-amber-600" />
               </div>
@@ -100,7 +119,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Orders Today</p>
-                  <p className="text-2xl font-bold text-gray-900">12</p>
+                  <p className="text-2xl font-bold text-gray-900">{orderCount}</p>
                 </div>
                 <ShoppingCart className="h-8 w-8 text-green-600" />
               </div>
@@ -112,7 +131,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Active Users</p>
-                  <p className="text-2xl font-bold text-gray-900">1,234</p>
+                  <p className="text-2xl font-bold text-gray-900">{userCount}</p>
                 </div>
                 <Users className="h-8 w-8 text-blue-600" />
               </div>
@@ -124,7 +143,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Revenue</p>
-                  <p className="text-2xl font-bold text-gray-900">$12,345</p>
+                  <p className="text-2xl font-bold text-gray-900">${revenue}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-purple-600" />
               </div>
@@ -163,7 +182,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white shadow-sm">
+          {/* <Card className="bg-white shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center text-gray-900">
                 <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
@@ -187,6 +206,21 @@ export default function AdminDashboard() {
                 <Eye className="w-4 h-4 mr-2" />
                 View All Offers
               </Button>
+            </CardContent>
+          </Card> */}
+        </div>
+
+        {/* Interests Today Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+          <Card className="bg-white shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Interests Today</p>
+                  <p className="text-2xl font-bold text-gray-900">{interestsToday}</p>
+                </div>
+                <Eye className="h-8 w-8 text-green-600" />
+              </div>
             </CardContent>
           </Card>
         </div>
