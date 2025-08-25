@@ -203,7 +203,7 @@ export default function EditProduct() {
 
               <div>
                 <Label htmlFor="price" className={errors.price ? "text-red-600" : ""}>
-                  Price ($)
+                  Price (Ksh)
                 </Label>
                 <Input
                   id="price"

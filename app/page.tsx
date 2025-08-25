@@ -19,9 +19,9 @@ export default function HomePage() {
   const [showSearch, setShowSearch] = useState(false)
   const [cart, setCart] = useState<Product[]>([])
   const [showCart, setShowCart] = useState(false)
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [newsletterLoading, setNewsletterLoading] = useState(false);
-  const [newsletterMsg, setNewsletterMsg] = useState("");
+  const [newsletterEmail, setNewsletterEmail] = useState("")
+  const [newsletterLoading, setNewsletterLoading] = useState(false)
+  const [newsletterMsg, setNewsletterMsg] = useState("")
   const router = useRouter()
 
   // Load cart from localStorage on mount
@@ -76,27 +76,27 @@ export default function HomePage() {
 
   // Newsletter subscription handler
   const handleNewsletterSubscribe = async () => {
-    setNewsletterLoading(true);
-    setNewsletterMsg("");
+    setNewsletterLoading(true)
+    setNewsletterMsg("")
     try {
-      const res = await fetch("http://localhost:5000/api/subscribe", {
+      const res = await fetch("https://haven-furnitures.onrender.com/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: newsletterEmail }),
-      });
-      const data = await res.json();
+      })
+      const data = await res.json()
       if (res.ok) {
-        setNewsletterMsg("🎉 Subscription successful! Check your email.");
-        setNewsletterEmail("");
+        setNewsletterMsg("🎉 Subscription successful! Check your email.")
+        setNewsletterEmail("")
       } else {
-        setNewsletterMsg(data.message || "❌ Subscription failed");
+        setNewsletterMsg(data.message || "❌ Subscription failed")
       }
     } catch {
-      setNewsletterMsg("⚠️ Something went wrong");
+      setNewsletterMsg("⚠️ Something went wrong")
     } finally {
-      setNewsletterLoading(false);
+      setNewsletterLoading(false)
     }
-  };
+  }
 
   return (
     <div
@@ -133,7 +133,7 @@ export default function HomePage() {
                     />
                     <div className="flex-1">
                       <h4 className="font-semibold text-foreground font-sans">{item.name}</h4>
-                      <p className="text-sm text-muted-foreground font-serif">${item.price}</p>
+                      <p className="text-sm text-muted-foreground font-serif">Ksh {item.price}</p>
                     </div>
                     <Button
                       variant="destructive"
@@ -146,7 +146,7 @@ export default function HomePage() {
                 ))}
                 <div className="mt-6">
                   <p className="text-lg font-bold text-foreground font-sans">
-                    Total: ${cart.reduce((sum, item) => sum + Number(item.price), 0).toFixed(2)}
+                    Total: Ksh{cart.reduce((sum, item) => sum + Number(item.price), 0).toFixed(2)}
                   </p>
                   <InterestForm
                     productId={cart.map(item => item._id).join(",")}
@@ -264,72 +264,64 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-<section className="relative h-[600px] sm:h-[700px] bg-background overflow-hidden">
-  {/* Background Image and Overlay */}
-  <div className="absolute inset-0">
-    <img
-      src="/hero.png"
-      alt="Luxury furniture showcase"
-      className="w-full h-full object-cover object-center opacity-80"
-    />
-    <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-black/30 to-transparent"></div>
-  </div>
-  {/* Subtle Radial Gradient for Depth */}
-  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,90,43,0.15),transparent_60%)]"></div>
-
-  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-full flex items-center">
-    {/* Content Container */}
-    <div className="max-w-2xl space-y-6 sm:space-y-8 z-10 animate-in slide-in-from-left duration-1000">
-      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight font-sans text-white tracking-tight">
-  Elevate Your Space with{" "}
-  <span className="text-brown-600 animate-in fade-in-50 duration-1000 delay-200">Luxury</span>
-  <br />
-  Embrace{" "}
-  <span className="text-white animate-in fade-in-50 duration-1000 delay-300">Timeless Simplicity</span>
-</h1>
-
-
-        
-      <p className="text-base sm:text-lg lg:text-xl text-primary-foreground/90 font-serif leading-relaxed max-w-md animate-in fade-in-50 duration-1000 delay-400">
-        Discover our curated collection of premium furniture, blending exquisite design with unparalleled comfort.
-      </p>
-      {/* CTA Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 animate-in slide-in-from-bottom duration-1000 delay-500">
-        <Button
-          size="lg"
-          className="bg-brown-600 text-white hover:bg-brown-700 font-serif font-bold tracking-wide px-6 sm:px-8 py-3 rounded-xl border-2 border-brown-400 transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-brown-800/50 relative overflow-hidden group"
-          onClick={() => router.push("/living-room")}
-        >
-          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
-          Shop Now
-        </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          className="px-6 sm:px-8 py-3 rounded-xl border-brown-400 text-brown-600 hover:bg-brown-100/50 hover:border-brown-500 transition-all duration-300 hover:scale-105"
-          onClick={() => router.push("/about")}
-        >
-          About Us
-        </Button>
-      </div>
-      {/* Features */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-4 sm:pt-6 text-center sm:text-left animate-in fade-in-50 duration-1000 delay-600">
-        <div>
-          <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Quality</h4>
-          <p className="text-sm text-primary-foreground/80 font-serif">Unmatched Craftsmanship</p>
+      <section className="relative h-[600px] sm:h-[700px] bg-background overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="/hero.png"
+            alt="Luxury furniture showcase"
+            className="w-full h-full object-cover object-center opacity-80"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-black/30 to-transparent"></div>
         </div>
-        <div>
-          <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Style</h4>
-          <p className="text-sm text-primary-foreground/80 font-serif">Modern Elegance</p>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,90,43,0.15),transparent_60%)]"></div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-full flex items-center">
+          <div className="max-w-2xl space-y-6 sm:space-y-8 z-10 animate-in slide-in-from-left duration-1000">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight font-sans text-white tracking-tight">
+              Elevate Your Space with{" "}
+              <span className="text-brown-600 animate-in fade-in-50 duration-1000 delay-200">Luxury</span>
+              <br />
+              Embrace{" "}
+              <span className="text-white animate-in fade-in-50 duration-1000 delay-300">Timeless Simplicity</span>
+            </h1>
+            <p className="text-base sm:text-lg lg:text-xl text-primary-foreground/90 font-serif leading-relaxed max-w-md animate-in fade-in-50 duration-1000 delay-400">
+              Discover our curated collection of premium furniture, blending exquisite design with unparalleled comfort.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 animate-in slide-in-from-bottom duration-1000 delay-500">
+              <Button
+                size="lg"
+                className="bg-brown-600 text-white hover:bg-brown-700 font-serif font-bold tracking-wide px-6 sm:px-8 py-3 rounded-xl border-2 border-brown-400 transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-brown-800/50 relative overflow-hidden group"
+                onClick={() => router.push("/living-room")}
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+                Shop Now
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="px-6 sm:px-8 py-3 rounded-xl border-brown-400 text-brown-600 hover:bg-brown-100/50 hover:border-brown-500 transition-all duration-300 hover:scale-105"
+                onClick={() => router.push("/about")}
+              >
+                About Us
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-4 sm:pt-6 text-center sm:text-left animate-in fade-in-50 duration-1000 delay-600">
+              <div>
+                <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Quality</h4>
+                <p className="text-sm text-primary-foreground/80 font-serif">Unmatched Craftsmanship</p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Style</h4>
+                <p className="text-sm text-primary-foreground/80 font-serif">Modern Elegance</p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Comfort</h4>
+                <p className="text-sm text-primary-foreground/80 font-serif">Ultimate Relaxation</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Comfort</h4>
-          <p className="text-sm text-primary-foreground/80 font-serif">Ultimate Relaxation</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
       {newArrivals.length > 0 && (
         <section className="py-16 bg-accent/10 relative overflow-hidden">
@@ -381,7 +373,7 @@ export default function HomePage() {
                       </p>
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xl font-bold text-primary font-sans group-hover:scale-110 transition-transform duration-300">
-                          ${product.price}
+                          Ksh{product.price}
                         </span>
                         <Button
                           size="sm"
@@ -457,7 +449,7 @@ export default function HomePage() {
                         {product.description}
                       </p>
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-xl font-bold text-primary font-sans">${product.price}</span>
+                        <span className="text-xl font-bold text-primary font-sans">Ksh{product.price}</span>
                         <Button
                           size="sm"
                           className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200"
@@ -484,7 +476,6 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Featured Categories */}
       <section className="py-24 bg-background relative overflow-hidden">
         <div className="absolute top-10 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-10 right-10 w-48 h-48 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -552,174 +543,69 @@ export default function HomePage() {
             <p className="text-muted-foreground font-serif">
               {featuredProducts.length > 0
                 ? "Latest additions from our admin"
-                : "Handpicked favorites from our latest collection"}
+                : "No featured products available at the moment."}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts.length > 0
-              ? featuredProducts.map((product, index) => (
-                  <Card
-                    key={product._id}
-                    className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-3`}
-                  >
-                    <CardContent className="p-0">
-                      <div className="relative aspect-square overflow-hidden rounded-t-lg">
-                        <img
-                          src={
-                            product.imageUrl ||
-                            `/abstract-geometric-shapes.png?height=400&width=400&query=${product.name || "/placeholder.svg"}`
-                          }
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
+            {featuredProducts.length > 0 &&
+              featuredProducts.map((product, index) => (
+                <Card
+                  key={product._id}
+                  className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-3`}
+                >
+                  <CardContent className="p-0">
+                    <div className="relative aspect-square overflow-hidden rounded-t-lg">
+                      <img
+                        src={
+                          product.imageUrl ||
+                          `/abstract-geometric-shapes.png?height=400&width=400&query=${product.name || "/placeholder.svg"}`
+                        }
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+                      >
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="p-6">
+                      <h4 className="text-lg font-semibold text-foreground mb-2 font-sans group-hover:text-primary transition-colors duration-300">
+                        {product.name}
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-3 font-serif line-clamp-2">
+                        {product.description}
+                      </p>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xl font-bold text-primary font-sans">Ksh{product.price}</span>
                         <Button
-                          size="icon"
-                          variant="secondary"
-                          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+                          size="sm"
+                          className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200"
+                          onClick={() => handleAddToCart(product)}
                         >
-                          <Heart className="h-4 w-4" />
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          Add to Cart
                         </Button>
                       </div>
-                      <div className="p-6">
-                        <h4 className="text-lg font-semibold text-foreground mb-2 font-sans group-hover:text-primary transition-colors duration-300">
-                          {product.name}
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-3 font-serif line-clamp-2">
-                          {product.description}
-                        </p>
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xl font-bold text-primary font-sans">${product.price}</span>
-                          <Button
-                            size="sm"
-                            className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200"
-                            onClick={() => handleAddToCart(product)}
-                          >
-                            <ShoppingCart className="h-4 w-4 mr-2" />
-                            Add to Cart
-                          </Button>
-                        </div>
-                        <div className="pt-2 border-t border-border">
-                          <InterestForm
-                            productId={product._id}
-                            productName={product.name}
-                            productPrice={product.price.toString()}
-                            triggerClassName="w-full"
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              : [
-                  {
-                    _id: "default-1",
-                    name: "Modern Sectional Sofa",
-                    price: 2499,
-                    description: "A stylish and comfortable sectional sofa",
-                    image: "modern gray sectional sofa",
-                    rating: 4.8,
-                    reviews: 124,
-                    badge: "Best Seller",
-                  },
-                  {
-                    _id: "default-2",
-                    name: "Oak Dining Table",
-                    price: 1299,
-                    description: "Solid oak dining table with modern design",
-                    image: "solid oak dining table with modern design",
-                    rating: 4.9,
-                    reviews: 89,
-                    badge: "New",
-                  },
-                  {
-                    _id: "default-3",
-                    name: "Ergonomic Office Chair",
-                    price: 599,
-                    description: "Modern ergonomic office chair in black",
-                    image: "modern ergonomic office chair in black",
-                    rating: 4.7,
-                    reviews: 156,
-                    badge: "Sale",
-                  },
-                ].map((product, index) => (
-                  <Card
-                    key={product._id}
-                    className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-3`}
-                  >
-                    <CardContent className="p-0">
-                      <div className="relative aspect-square overflow-hidden rounded-t-lg">
-                        <img
-                          src={`/abstract-geometric-shapes.png?key=22dnw&height=400&width=400&query=${product.image}`}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      <div className="pt-2 border-t border-border">
+                        <InterestForm
+                          productId={product._id}
+                          productName={product.name}
+                          productPrice={product.price.toString()}
+                          triggerClassName="w-full"
                         />
-                        {product.badge && (
-                          <Badge
-                            className={`absolute top-4 left-4 font-serif animate-in zoom-in-50 duration-500 delay-300 ${
-                              product.badge === "Sale"
-                                ? "bg-destructive"
-                                : product.badge === "New"
-                                  ? "bg-accent text-accent-foreground"
-                                  : "bg-primary"
-                            }`}
-                          >
-                            {product.badge}
-                          </Badge>
-                        )}
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
-                        >
-                          <Heart className="h-4 w-4" />
-                        </Button>
                       </div>
-                      <div className="p-6">
-                        <h4 className="text-lg font-semibold text-foreground mb-2 font-sans group-hover:text-primary transition-colors duration-300">
-                          {product.name}
-                        </h4>
-                        <div className="flex items-center mb-3">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 transition-colors duration-200 ${i < Math.floor(product.rating) ? "text-yellow-500 fill-current" : "text-gray-300"}`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-sm text-muted-foreground ml-2 font-serif">({product.reviews})</span>
-                        </div>
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl font-bold text-primary font-sans">${product.price}</span>
-                          </div>
-                          <Button
-                            size="sm"
-                            className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200"
-                            onClick={() => handleAddToCart(product)}
-                          >
-                            <ShoppingCart className="h-4 w-4 mr-2" />
-                            Add to Cart
-                          </Button>
-                        </div>
-                        <div className="pt-2 border-t border-border">
-                          <InterestForm
-                            productId={product._id}
-                            productName={product.name}
-                            productPrice={product.price.toString()}
-                            triggerClassName="w-full"
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
         </div>
       </section>
 
-      {/* Newsletter */}
       <section className="py-16 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.1)_0%,transparent_50%)] animate-pulse"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.05)_0%,transparent_50%)] animate-pulse delay-1000"></div>
@@ -756,7 +642,98 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
+{/* Testimonials Section */}
+{(() => {
+  const [testimonials, setTestimonials] = useState([
+    {
+      id: 1,
+      name: "Jane Doe",
+      rating: 5,
+      comment: "Haven Furnitures transformed my living space with their stunning designs and top-notch quality. Highly recommend!",
+      image: "/images/testimonial-1.jpg",
+    },
+    {
+      id: 2,
+      name: "John Smith",
+      rating: 4,
+      comment: "The furniture is both stylish and comfortable. The delivery was prompt, and customer service was excellent.",
+      image: "/images/testimonial-2.jpg",
+    },
+    {
+      id: 3,
+      name: "Emily Johnson",
+      rating: 5,
+      comment: "I love the modern elegance of their pieces. My dining set is a conversation starter at every gathering!",
+      image: "/images/testimonial-3.jpg",
+    },
+  ])
+
+  return (
+    <section
+      className="py-16 bg-primary/10 border-t border-border"
+      aria-labelledby="testimonials-heading"
+    >
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h3
+          id="testimonials-heading"
+          className="text-3xl font-bold text-primary text-center mb-10 font-sans animate-in fade-in-50 duration-800"
+        >
+          What Our Customers Say
+          <div className="mt-2 mx-auto w-16 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, index) => (
+            <Card
+              key={testimonial.id}
+              className={`border-border hover:border-primary/30 hover:shadow-xl transition-all duration-500 animate-in slide-in-from-bottom duration-700 delay-${
+                (index + 1) * 150
+              }`}
+              role="article"
+              aria-label={`Testimonial by ${testimonial.name}`}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center mb-4">
+                  <img
+                    src={testimonial.image || `https://via.placeholder.com/150?text=${testimonial.name}`}
+                    alt={`${testimonial.name}'s avatar`}
+                    className="w-12 h-12 rounded-full object-cover mr-4"
+                    loading="lazy"
+                  />
+                  <div>
+                    <h4 className="text-lg font-semibold text-foreground font-sans">
+                      {testimonial.name}
+                    </h4>
+                    <div className="flex items-center" aria-label={`${testimonial.rating} out of 5 stars`}>
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="h-4 w-4 text-yellow-400 fill-yellow-400"
+                          aria-hidden="true"
+                        />
+                      ))}
+                      {[...Array(5 - testimonial.rating)].map((_, i) => (
+                        <Star
+                          key={i + testimonial.rating}
+                          className="h-4 w-4 text-gray-300"
+                          aria-hidden="true"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-muted-foreground font-serif text-sm leading-relaxed">
+                  &quot;{testimonial.comment}&quot;
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+})()}
+
       <footer className="bg-card py-12 border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-8">

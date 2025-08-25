@@ -189,7 +189,7 @@ export default function ProductsManagement() {
                             {product.category}
                           </Badge>
                         </TableCell>
-                        <TableCell className="font-semibold">${product.price}</TableCell>
+                        <TableCell className="font-semibold">Ksh{product.price}</TableCell>
                         <TableCell className="max-w-xs truncate text-gray-600">{product.description}</TableCell>
                         <TableCell className="text-gray-500">
                           {new Date(product.createdAt).toLocaleDateString()}

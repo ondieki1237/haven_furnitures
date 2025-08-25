@@ -1,0 +1,87 @@
+# API Endpoints Documentation
+
+This file lists all backend API endpoints for Haven Furnitures and their uses.
+
+---
+
+## Product APIs
+
+- **GET `/api/products`**  
+  Returns a list of all products.
+
+- **GET `/api/products/:id`**  
+  Returns details for a single product by ID.
+
+- **POST `/api/products`**  
+  Creates a new product.  
+  **Body:** `{ name, price, description, category, imageUrl, ... }`
+
+- **PUT `/api/products/:id`**  
+  Updates an existing product by ID.  
+  **Body:** `{ name, price, description, category, imageUrl, ... }`
+
+- **DELETE `/api/products/:id`**  
+  Deletes a product by ID.
+
+- **GET `/api/products/featured`**  
+  Returns all featured products.
+
+- **GET `/api/products/new`**  
+  Returns new arrival products.
+
+- **GET `/api/products/sale`**  
+  Returns products on sale.
+
+---
+
+## Interest APIs
+
+- **POST `/api/interests`**  
+  Submit a customer interest for one or more products.  
+  **Body:** `{ name, email, phone, location, productId, productName, productPrice, ... }`
+
+- **GET `/api/interests`**  
+  (Admin) List all customer interests.
+
+---
+
+## Newsletter APIs
+
+- **POST `/api/subscribe`**  
+  Subscribe an email to the newsletter.  
+  **Body:** `{ email }`
+
+---
+
+## Auth/Admin APIs
+
+- **POST `/api/admin/login`**  
+  Admin login.  
+  **Body:** `{ email, password }`
+
+- **GET `/api/admin/products`**  
+  (Admin) List all products (may include unpublished).
+
+- **POST `/api/admin/products`**  
+  (Admin) Create a new product.
+
+- **PUT `/api/admin/products/:id`**  
+  (Admin) Update a product.
+
+- **DELETE `/api/admin/products/:id`**  
+  (Admin) Delete a product.
+
+---
+
+## Upload APIs
+
+- **POST `/api/upload`**  
+  Upload an image (e.g., to Cloudinary).  
+  **Body:** `FormData` with file.
+
+---
+
+**Note:**  
+- All endpoints are relative to your backend root:  
+  `https://haven-furnitures.onrender.com`
+- Some endpoints may require authentication.

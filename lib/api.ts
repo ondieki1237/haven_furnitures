@@ -1,4 +1,9 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { getBackendUrl } from "@/lib/getBackendUrl";
+
+export async function getProducts() {
+  const res = await fetch(`${getBackendUrl()}/api/products`);
+  // ...rest of your code
+}
 
 export interface Product {
   _id: string;
@@ -73,7 +78,7 @@ export const api = {
       if (params?.limit) searchParams.set("limit", params.limit.toString());
       if (params?.page) searchParams.set("page", params.page.toString());
 
-      const response = await fetch(`${API_BASE_URL}/products?${searchParams}`, {
+      const response = await fetch(`${getBackendUrl()}/api/products?${searchParams}`, {
         headers: {
           "Content-Type": "application/json",
           ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
@@ -96,7 +101,7 @@ export const api = {
     try {
       if (!id) throw new Error("Product ID is required.");
 
-      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      const response = await fetch(`${getBackendUrl()}/api/products/${id}`, {
         headers: {
           "Content-Type": "application/json",
           ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
@@ -123,7 +128,7 @@ export const api = {
       const errors = validateProductData(product);
       if (errors.length > 0) throw new Error(`Invalid product data: ${errors.join(", ")}`);
 
-      const response = await fetch(`${API_BASE_URL}/products`, {
+      const response = await fetch(`${getBackendUrl()}/api/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,7 +155,7 @@ export const api = {
       const errors = validateProductData(product);
       if (errors.length > 0) throw new Error(`Invalid product data: ${errors.join(", ")}`);
 
-      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      const response = await fetch(`${getBackendUrl()}/api/products/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -176,7 +181,7 @@ export const api = {
     try {
       if (!id) throw new Error("Product ID is required.");
 
-      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      const response = await fetch(`${getBackendUrl()}/api/products/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -219,7 +224,7 @@ export const api = {
       if (!interest.phone?.trim()) throw new Error("Phone is required.");
       if (!interest.productId) throw new Error("Product ID is required.");
 
-      const response = await fetch(`${API_BASE_URL}/interests`, {
+      const response = await fetch(`${getBackendUrl()}/api/interests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -248,7 +253,7 @@ export const api = {
       if (params?.limit) searchParams.set("limit", params.limit.toString());
       if (params?.page) searchParams.set("page", params.page.toString());
 
-      const response = await fetch(`${API_BASE_URL}/interests?${searchParams}`, {
+      const response = await fetch(`${getBackendUrl()}/api/interests?${searchParams}`, {
         headers: {
           "Content-Type": "application/json",
           ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
@@ -271,7 +276,7 @@ export const api = {
     try {
       if (!publicId) throw new Error("Image public ID is required.");
 
-      const response = await fetch(`${API_BASE_URL}/upload/image`, {
+      const response = await fetch(`${getBackendUrl()}/api/upload/image`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

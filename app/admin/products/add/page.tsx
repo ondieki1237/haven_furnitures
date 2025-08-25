@@ -230,10 +230,10 @@ const uploadToCloudinary = async (file: File) => {
               {/* Price */}
               <div className="space-y-2">
                 <Label htmlFor="price" className="text-sm font-medium text-gray-700">
-                  Price (USD) *
+                  Price (Ksh) *
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-3 text-gray-500">$</span>
+                  {/* <span className="absolute left-3 top-3 text-gray-500">Ksh</span> */}
                   <Input
                     id="price"
                     type="number"
