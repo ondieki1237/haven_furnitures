@@ -24,11 +24,12 @@ const limiter = rateLimit({
 });
 app.use("/api/", limiter);
 
-// CORS configuration
+// ✅ CORS configuration (added Vercel domain)
 app.use(
   cors({
     origin: [
-      process.env.FRONTEND_URL || "http://localhost:3000",
+      "https://haven-furnitures.vercel.app", // production frontend
+      process.env.FRONTEND_URL || "http://localhost:3000", // fallback from .env
       "http://localhost:3001",
       "http://localhost:3002",
       "http://localhost:3003",
@@ -38,6 +39,8 @@ app.use(
       "http://127.0.0.1:3003",
     ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
