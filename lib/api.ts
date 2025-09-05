@@ -50,9 +50,12 @@ export interface ApiResponse<T> {
 }
 
 // Helper to get auth token from localStorage (adjust based on your auth mechanism)
-const getAuthToken = () => {
-  return localStorage.getItem("admin_token") || null; // Adjust key based on your auth system
-};
+function getAuthToken() {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("token");
+  }
+  return null;
+}
 
 // Helper to validate product data
 const validateProductData = (product: Partial<Product>): string[] => {

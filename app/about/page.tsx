@@ -21,7 +21,7 @@ export default function AboutPage() {
               </Link>
               <Link href="/">
                 <h1 className="text-2xl font-bold text-primary font-sans hover:scale-105 transition-transform duration-300 cursor-pointer">
-                  Haven Furnitures
+                  haven_living_furniture Furnitures
                 </h1>
               </Link>
             </div>
@@ -35,7 +35,7 @@ export default function AboutPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
           <div className="max-w-3xl animate-in slide-in-from-left duration-1000">
             <h2 className="text-4xl font-bold text-foreground mb-4 font-sans leading-tight animate-in fade-in-50 duration-1000 delay-200">
-              About Haven Furnitures
+              About haven_living_furniture Furnitures
             </h2>
             <p className="text-lg text-muted-foreground mb-6 font-serif leading-relaxed animate-in fade-in-50 duration-1000 delay-400">
               Creating beautiful, functional spaces for Kenyan homes since 2020. We believe every home deserves
@@ -52,7 +52,7 @@ export default function AboutPage() {
             <div className="animate-in slide-in-from-left duration-800">
               <h3 className="text-3xl font-bold text-foreground mb-6 font-sans">Our Story</h3>
               <p className="text-muted-foreground mb-4 font-serif leading-relaxed">
-                Haven Furnitures was born from a simple belief: that every Kenyan home deserves beautiful, quality
+                haven_living_furniture_living_furniture Furnitures was born from a simple belief: that every Kenyan home deserves beautiful, quality
                 furniture that doesn't break the bank. Founded in Nairobi in 2020, we started as a small family business
                 with a passion for creating spaces where families can gather, relax, and make memories.
               </p>
@@ -69,7 +69,7 @@ export default function AboutPage() {
             <div className="animate-in slide-in-from-right duration-800 delay-200">
               <img
                 src="/placeholder-x09js.png"
-                alt="Haven Furnitures showroom"
+                alt="haven_living_furniture Furnitures showroom"
                 className="w-full h-auto rounded-lg shadow-lg hover:scale-105 transition-transform duration-500"
               />
             </div>
@@ -151,7 +151,7 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 animate-in fade-in-50 duration-800">
             <h3 className="text-3xl font-bold text-foreground mb-4 font-sans">Meet Our Team</h3>
-            <p className="text-muted-foreground font-serif">The people behind Haven Furnitures</p>
+            <p className="text-muted-foreground font-serif">The people behind haven_living_furniture Furnitures</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

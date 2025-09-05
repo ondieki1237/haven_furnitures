@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { api } from "@/lib/api" // Import centralized API utility
+import Link from "next/link"
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
@@ -144,41 +145,42 @@ export function SearchDropdown({ onClose }: SearchDropdownProps) {
               ) : (
                 <div className="p-2">
                   {searchResults.map((product) => (
-                    <div
-                      key={product._id}
-                      className="flex items-center p-3 hover:bg-muted rounded-lg cursor-pointer transition-colors duration-200 group"
-                      onClick={() => {
-                        // You can add navigation logic here
-                        console.log("Selected product:", product)
-                        onClose?.()
-                      }}
-                    >
-                      <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center overflow-hidden mr-4 flex-shrink-0">
-                        {product.imageUrl ? (
-                          <img
-                            src={product.imageUrl || "/placeholder.svg"}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                            <Search className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-foreground group-hover:text-primary transition-colors duration-200 truncate">
-                          {product.name}
-                        </h4>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded-md">
-                            {getCategoryDisplayName(product.category)}
-                          </span>
-                          <span className="text-sm font-semibold text-primary">${product.price}</span>
+                    <Link key={product._id} href={`/product/${product._id}`}>
+                      <div
+                        className="flex items-center p-3 hover:bg-muted rounded-lg cursor-pointer transition-colors duration-200 group"
+                        onClick={() => {
+                          // You can add navigation logic here
+                          console.log("Selected product:", product)
+                          onClose?.()
+                        }}
+                      >
+                        <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center overflow-hidden mr-4 flex-shrink-0">
+                          {product.imageUrl ? (
+                            <img
+                              src={product.imageUrl || "/placeholder.svg"}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+                              <Search className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          )}
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{product.description}</p>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-foreground group-hover:text-primary transition-colors duration-200 truncate">
+                            {product.name}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded-md">
+                              {getCategoryDisplayName(product.category)}
+                            </span>
+                            <span className="text-sm font-semibold text-primary">${product.price}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{product.description}</p>
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}

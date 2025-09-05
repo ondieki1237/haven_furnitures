@@ -93,7 +93,7 @@ export function InterestForm({ productId, productName, productPrice, triggerClas
           <div className="text-center space-y-1">
             <p className="text-amber-800 font-medium">{productName}</p>
             <p className="text-amber-700 text-sm">
-              Product #{productId} • ${productPrice}
+              Product #{productId} • Ksh {productPrice}
             </p>
           </div>
         </DialogHeader>

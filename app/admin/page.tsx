@@ -49,7 +49,7 @@ export default function AdminLogin() {
       <div className="w-full max-w-md">
         {/* Logo and Brand */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-amber-900 mb-2">Haven Furnitures</h1>
+          <h1 className="text-3xl font-bold text-amber-900 mb-2">haven_living_furniture Furnitures</h1>
           <p className="text-amber-700">Admin Portal</p>
         </div>
 

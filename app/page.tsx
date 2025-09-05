@@ -4,938 +4,1074 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, Heart, Search, Menu, User, Sparkles, X } from "lucide-react"
+import { Star, ShoppingCart, Heart, Search, Menu, User, X } from "lucide-react"
 import { InterestForm } from "@/components/interest-form"
 import { SearchDropdown } from "@/components/search-dropdown"
 import Link from "next/link"
+import Image from "next/image"
+import { Skeleton } from "@/components/ui/skeleton"
 import { api, type Product as BackendProduct } from "@/lib/api"
 import { useRouter } from "next/navigation"
+import heroImg from "@/public/hero.png"
+
+// Sample testimonials data (replace with API fetch if needed)
+const testimonials = [
+	{
+		id: "1",
+		name: "Benjamin Karani",
+		image: "/profile.png",
+		rating: 5,
+		comment: "The furniture quality is exceptional, and the delivery was seamless!",
+	},
+	{
+		id: "2",
+		name: "Jane Mwangi",
+		image: "/profile.png",
+		rating: 4,
+		comment: "Beautiful designs that transformed my living space. Highly recommend!",
+	},
+	{
+		id: "3",
+		name: "Daniel Kinyua",
+		image: "/profile.png",
+		rating: 5,
+		comment: "Amazing customer service and stunning furniture pieces!",
+	},
+]
 
 type Product = BackendProduct
 
+// Hardcoded fallback products (minimal example, add more as needed)
+const fallbackProducts: Product[] = [
+  {
+    _id: "68b2de1ebc4cbb21328ef240",
+    name: "Bed",
+    description: "5 by 6 bed\nMahogany wood Quality frame\nQuality fabric used",
+    price: 65000,
+    category: "sofas",
+    imageUrl: "https://res.cloudinary.com/diaceq8bv/image/upload/v1756552730/haven/wf...",
+    inStock: true,
+    featured: false,
+    createdAt: "2025-08-30T11:18:54.818+00:00",
+    updatedAt: "2025-08-30T11:18:54.818+00:00",
+    __v: 0,
+  },
+  {
+    _id: "68b2df06bc4cbb21328ef244",
+    name: "Modern Sofa 7 Seater",
+    description: "Mahogany wood\nQuality fabric used\nPremium cushion used with an option...",
+    price: 165000,
+    category: "sofas",
+    imageUrl: "https://res.cloudinary.com/diaceq8bv/image/upload/v1756552961/haven/j0...",
+    inStock: true,
+    featured: false,
+    createdAt: "2025-08-30T11:22:46.839+00:00",
+    updatedAt: "2025-08-30T11:22:46.839+00:00",
+    __v: 0,
+  },
+  {
+    _id: "68b2df66bc4cbb21328ef248",
+    name: "Modern TV Stand",
+    description: "Mahogany wood used\n7 ft length",
+    price: 50000,
+    category: "tv-stands",
+    imageUrl: "https://res.cloudinary.com/diaceq8bv/image/upload/v1756553058/haven/yb...",
+    inStock: true,
+    featured: false,
+    createdAt: "2025-08-30T11:24:22.111+00:00",
+    updatedAt: "2025-08-30T11:24:22.111+00:00",
+    __v: 0,
+  },
+  {
+    _id: "68b2dff5bc4cbb21328ef24c",
+    name: "7 Seater Modern Sofa",
+    description: "Mahogany wood used\nPremium cushion with an option of spring cushion\nQuality...",
+    price: 170000,
+    category: "dining-sets",
+    imageUrl: "https://res.cloudinary.com/diaceq8bv/image/upload/v1756553197/haven/un...",
+    inStock: true,
+    featured: false,
+    createdAt: "2025-08-30T11:26:45.782+00:00",
+    updatedAt: "2025-08-30T11:26:45.782+00:00",
+    __v: 0,
+  },
+  {
+    _id: "68b2e06ebc4cbb21328ef250",
+    name: "7 Seater Sofa",
+    description: "Mahogany wood used\nPremium cushion with an option of spring cushion",
+    price: 165000,
+    category: "sofas",
+    imageUrl: "https://res.cloudinary.com/diaceq8bv/image/upload/v1756553323/haven/cn...",
+    inStock: true,
+    featured: false,
+    createdAt: "2025-08-30T11:28:46.638+00:00",
+    updatedAt: "2025-08-30T11:28:46.638+00:00",
+    __v: 0,
+  },
+];
+
 export default function HomePage() {
-  const [adminProducts, setAdminProducts] = useState<Product[]>([])
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [showSearch, setShowSearch] = useState(false)
-  const [cart, setCart] = useState<Product[]>([])
-  const [showCart, setShowCart] = useState(false)
-  const [newsletterEmail, setNewsletterEmail] = useState("")
-  const [newsletterLoading, setNewsletterLoading] = useState(false)
-  const [newsletterMsg, setNewsletterMsg] = useState("")
-  const router = useRouter()
+	const [adminProducts, setAdminProducts] = useState<Product[]>(fallbackProducts);
+	const [isLoaded, setIsLoaded] = useState(false)
+	const [showSearch, setShowSearch] = useState(false)
+	const [cart, setCart] = useState<Product[]>([])
+	const [showCart, setShowCart] = useState(false)
+	const [showMobileMenu, setShowMobileMenu] = useState(false)
+	const [newsletterEmail, setNewsletterEmail] = useState("")
+	const [newsletterLoading, setNewsletterLoading] = useState(false)
+	const [newsletterMsg, setNewsletterMsg] = useState("")
+	const [currentIndex, setCurrentIndex] = useState(0) // For testimonials carousel
+	const [featuredCount, setFeaturedCount] = useState(6);
+	const router = useRouter()
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    const savedCart = localStorage.getItem("cart")
-    if (savedCart) {
-      setCart(JSON.parse(savedCart))
-    }
-  }, [])
+	// Load cart from localStorage on mount
+	useEffect(() => {
+		const savedCart = localStorage.getItem("cart")
+		if (savedCart) {
+			setCart(JSON.parse(savedCart))
+		}
+	}, [])
 
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart))
-  }, [cart])
+	// Save cart to localStorage whenever it changes
+	useEffect(() => {
+		localStorage.setItem("cart", JSON.stringify(cart))
+	}, [cart])
 
-  // Fetch products
-  useEffect(() => {
-    ;(async () => {
-      try {
-        const res = await api.getProducts()
-        if (res.success && res.data) setAdminProducts(res.data)
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setIsLoaded(true)
-      }
-    })()
-  }, [])
+	// Fetch products
+	useEffect(() => {
+		;(async () => {
+			try {
+				const res = await api.getProducts()
+				if (res.success && res.data) setAdminProducts(res.data)
+			} catch (e) {
+				console.error(e)
+				// Optionally keep fallbackProducts if fetch fails
+			} finally {
+				setIsLoaded(true)
+			}
+		})()
+	}, [])
 
-  const newArrivals: Product[] = []
-  const saleProducts: Product[] = []
-  const featuredProducts = adminProducts.slice(0, 6) // Show latest 6 products
+	// Auto-slide testimonials every 5 seconds
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCurrentIndex((prev) => (prev + 1) % testimonials.length)
+		}, 5000)
+		return () => clearInterval(interval)
+	}, [])
 
-  // Add to cart handler
-  const handleAddToCart = (product: Product) => {
-    setCart((prev) => {
-      const exists = prev.find((p) => p._id === product._id)
-      if (exists) return prev // Prevent duplicates
-      return [...prev, product]
-    })
-  }
+	// Populate new arrivals and sale products (adjust logic as needed)
+	const newArrivals = adminProducts
+		.filter((p) => new Date(p.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+		.slice(0, 6)
+	const saleProducts = adminProducts.filter((p) => p.discount && p.discount > 0).slice(0, 6)
+	const featuredProducts = adminProducts.slice(0, featuredCount); // Show latest 6 products
 
-  // Remove from cart handler
-  const handleRemoveFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((p) => p._id !== productId))
-  }
+	// Add to cart handler
+	const handleAddToCart = (product: Product) => {
+		setCart((prev) => {
+			const exists = prev.find((p) => p._id === product._id)
+			if (exists) return prev // Prevent duplicates
+			return [...prev, product]
+		})
+	}
 
-  // Toggle cart modal
-  const toggleCart = () => {
-    setShowCart(!showCart)
-  }
+	// Remove from cart handler
+	const handleRemoveFromCart = (productId: string) => {
+		setCart((prev) => prev.filter((p) => p._id !== productId))
+	}
 
-  // Newsletter subscription handler
-  const handleNewsletterSubscribe = async () => {
-    setNewsletterLoading(true)
-    setNewsletterMsg("")
-    try {
-      const res = await fetch("https://haven-furnitures.onrender.com/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: newsletterEmail }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        setNewsletterMsg("🎉 Subscription successful! Check your email.")
-        setNewsletterEmail("")
-      } else {
-        setNewsletterMsg(data.message || "❌ Subscription failed")
-      }
-    } catch {
-      setNewsletterMsg("⚠️ Something went wrong")
-    } finally {
-      setNewsletterLoading(false)
-    }
-  }
+	// Toggle cart modal
+	const toggleCart = () => {
+		setShowCart(!showCart)
+	}
 
-  return (
-    <div
-      className={`min-h-screen bg-background transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}
-    >
-      {showSearch && <SearchDropdown onClose={() => setShowSearch(false)} />}
+	const toggleMobileMenu = () => {
+		setShowMobileMenu(!showMobileMenu)
+	}
 
-      {/* Cart Modal */}
-      {showCart && (
+	// Handle next slide for testimonials
+	const nextSlide = () => {
+		setCurrentIndex((prev) => (prev + 1) % testimonials.length)
+	}
+
+	// Handle previous slide for testimonials
+	const prevSlide = () => {
+		setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+	}
+
+	// Newsletter subscription handler
+	const handleNewsletterSubscribe = async () => {
+		setNewsletterLoading(true)
+		setNewsletterMsg("")
+		try {
+			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://haven-furnitures.onrender.com"
+			const res = await fetch(`${apiUrl}/api/subscribe`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: newsletterEmail }),
+			})
+			const data = await res.json()
+			if (res.ok) {
+				setNewsletterMsg("🎉 Subscription successful! Check your email.")
+				setNewsletterEmail("")
+			} else {
+				setNewsletterMsg(data.message || "❌ Subscription failed")
+			}
+		} catch {
+			setNewsletterMsg("⚠️ Something went wrong")
+		} finally {
+			setNewsletterLoading(false)
+		}
+	}
+
+	// Add this function:
+	const handleLoadMore = () => {
+		setFeaturedCount((prev) => prev + 6);
+	};
+
+	return (
         <div
-          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-end"
-          onClick={() => setShowCart(false)} // Close modal on overlay click
+            className="min-h-screen bg-gradient-to-b from-white via-[#fdfbf9] to-[#f5f0eb] relative overflow-x-hidden"
         >
-          <div
-            className="bg-background w-full max-w-md h-full p-6 overflow-y-auto shadow-xl animate-in slide-in-from-right duration-500"
-            onClick={(e) => e.stopPropagation()} // Prevent clicks inside the cart from closing it
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-foreground font-sans">Your Cart</h2>
-              <Button variant="ghost" size="icon" onClick={toggleCart}>
-                <X className="h-6 w-6" />
-              </Button>
-            </div>
-            {cart.length === 0 ? (
-              <p className="text-muted-foreground font-serif text-center">Your cart is empty</p>
-            ) : (
-              <div className="space-y-4">
-                {cart.map((item) => (
-                  <div key={item._id} className="flex items-center gap-4 border-b pb-4">
-                    <img
-                      src={item.imageUrl || "/placeholder.svg"}
-                      alt={item.name}
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-foreground font-sans">{item.name}</h4>
-                      <p className="text-sm text-muted-foreground font-serif">Ksh {item.price}</p>
-                    </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleRemoveFromCart(item._id)}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ))}
-                <div className="mt-6">
-                  <p className="text-lg font-bold text-foreground font-sans">
-                    Total: Ksh{cart.reduce((sum, item) => sum + Number(item.price), 0).toFixed(2)}
-                  </p>
-                  <InterestForm
-                    productId={cart.map(item => item._id).join(",")}
-                    productName={cart.map(item => item.name).join(", ")}
-                    productPrice={cart.reduce((sum, item) => sum + Number(item.price), 0).toString()}
-                    triggerClassName="w-full mt-4 bg-primary hover:bg-primary/90"
-                    cartProducts={cart}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+            {showSearch && <SearchDropdown onClose={() => setShowSearch(false)} />}
 
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border animate-in slide-in-from-top duration-500 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/">
-                <h1 className="text-2xl font-bold text-primary font-sans hover:scale-110 transition-all duration-500 cursor-pointer animate-in fade-in-50 duration-700 hover:text-primary/80 relative group">
-                  Haven
-                  <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
-                </h1>
-              </Link>
-            </div>
+			{/* Cart Modal */}
+			{showCart && (
+				<div
+					className="fixed inset-0 z-50 bg-black/50 flex items-center justify-end"
+					onClick={() => setShowCart(false)}
+				>
+					<div
+						className="bg-background w-full max-w-md h-full p-4 sm:p-6 overflow-y-auto shadow-xl animate-in slide-in-from-right duration-500"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<div className="flex justify-between items-center mb-6">
+							<h2 className="text-xl sm:text-2xl font-bold text-foreground font-sans">Your Cart</h2>
+							<Button variant="ghost" size="icon" onClick={toggleCart}>
+								<X className="h-6 w-6" />
+							</Button>
+						</div>
+						{cart.length === 0 ? (
+							<p className="text-muted-foreground font-serif text-center">Your cart is empty</p>
+						) : (
+							<div className="space-y-4">
+								{cart.map((item) => (
+									<div key={item._id} className="flex items-center gap-3 border-b pb-4">
+										<Image
+											src={item.imageUrl || "/placeholder.svg"}
+											alt={item.name}
+											width={60}
+											height={60}
+											className="object-cover rounded sm:w-20 sm:h-20"
+										/>
+										<div className="flex-1 min-w-0">
+											<h4 className="font-semibold text-foreground font-sans text-sm sm:text-base truncate">
+												{item.name}
+											</h4>
+											<p className="text-sm text-muted-foreground font-serif">Ksh {item.price}</p>
+										</div>
+										<Button
+											variant="destructive"
+											size="sm"
+											onClick={() => handleRemoveFromCart(item._id)}
+											className="text-xs"
+										>
+											Remove
+										</Button>
+									</div>
+								))}
+								<div className="mt-6">
+									<p className="text-lg font-bold text-foreground font-sans">
+										Total: Ksh {cart.reduce((sum, item) => sum + Number(item.price), 0).toFixed(2)}
+									</p>
+									<InterestForm
+										productId={cart.map((item) => item._id).join(",")}
+										productName={cart.map((item) => item.name).join(", ")}
+										productPrice={cart.reduce((sum, item) => sum + Number(item.price), 0).toString()}
+										triggerClassName="w-full mt-4 bg-primary hover:bg-primary/90"
+										cartProducts={cart}
+									/>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			)}
 
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
-                <Link
-                  href="/living-room"
-                  className="text-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-all duration-500 font-serif hover:scale-110 animate-in fade-in-50 duration-700 delay-100 relative group overflow-hidden"
-                >
-                  Living Room
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-                <Link
-                  href="/bedroom"
-                  className="text-muted-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-all duration-500 font-serif hover:scale-110 animate-in fade-in-50 duration-700 delay-200 relative group overflow-hidden"
-                >
-                  Bedroom
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-                <Link
-                  href="/dining"
-                  className="text-muted-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-all duration-500 font-serif hover:scale-110 animate-in fade-in-50 duration-700 delay-300 relative group overflow-hidden"
-                >
-                  Dining
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-                <Link
-                  href="/office"
-                  className="text-muted-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-all duration-500 font-serif hover:scale-110 animate-in fade-in-50 duration-700 delay-400 relative group overflow-hidden"
-                >
-                  Office
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-                <Link
-                  href="/admin"
-                  className="text-muted-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-all duration-500 font-serif hover:scale-110 animate-in fade-in-50 duration-700 delay-500 relative group overflow-hidden"
-                >
-                  Admin
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-              </div>
-            </div>
+			{showMobileMenu && (
+				<div className="fixed inset-0 z-50 bg-black/50 md:hidden" onClick={() => setShowMobileMenu(false)}>
+					<div
+						className="bg-background w-64 h-full p-6 shadow-xl animate-in slide-in-from-left duration-300"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<div className="flex justify-between items-center mb-8">
+							<h2 className="text-xl font-bold text-primary font-sans">Menu</h2>
+							<Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
+								<X className="h-6 w-6" />
+							</Button>
+						</div>
+						<nav className="space-y-4">
+							{["living-room", "bedroom", "dining", "office", "admin"].map((category) => (
+								<Link
+									key={category}
+									href={`/${category}`}
+									className="block text-muted-foreground hover:text-primary py-3 text-lg font-medium transition-colors duration-300 font-serif border-b border-border/50"
+									onClick={() => setShowMobileMenu(false)}
+								>
+									{category.charAt(0).toUpperCase() + category.slice(1).replace("-", " ")}
+								</Link>
+							))}
+						</nav>
+					</div>
+				</div>
+			)}
 
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowSearch(true)}
-                className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:rotate-12"
-              >
-                <Search className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:text-red-500"
-              >
-                <Heart className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:-rotate-12 relative"
-                onClick={toggleCart}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {cart.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full px-2 py-0.5 font-bold shadow">
-                    {cart.length}
-                  </span>
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:scale-125 transition-all duration-300 hover:bg-primary/10"
-              >
-                <User className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden hover:scale-125 transition-all duration-300 hover:bg-primary/10"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+			{/* Navigation */}
+			<nav className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border animate-in slide-in-from-top duration-500 shadow-sm">
+				<div className="w-full px-4 sm:px-6 lg:px-8">
+					<div className="max-w-7xl mx-auto">
+						<div className="flex items-center justify-between h-16">
+							<div className="flex items-center">
+								<Link href="/">
+									<h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary font-sans hover:scale-110 transition-all duration-500 cursor-pointer animate-in fade-in-50 duration-700 hover:text-primary/80 relative group">
+										haven_living_furniture
+										<div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
+									</h1>
+								</Link>
+							</div>
 
-      {/* Hero Section */}
-      <section className="relative h-[600px] sm:h-[700px] bg-background overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="/hero.png"
-            alt="Luxury furniture showcase"
-            className="w-full h-full object-cover object-center opacity-80"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-black/30 to-transparent"></div>
-        </div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,90,43,0.15),transparent_60%)]"></div>
+							<div className="hidden md:block">
+								<div className="ml-10 flex items-baseline space-x-6 lg:space-x-8">
+									{["living-room", "bedroom", "dining", "office", "admin"].map((category, index) => (
+										<Link
+											key={category}
+											href={`/${category}`}
+											className="text-muted-foreground hover:text-primary px-2 lg:px-3 py-2 text-sm font-medium transition-all duration-500 font-serif hover:scale-110 animate-in fade-in-50 duration-700 relative group overflow-hidden"
+											style={{ animationDelay: `${(index + 1) * 100}ms` }}
+										>
+											{category.charAt(0).toUpperCase() + category.slice(1).replace("-", " ")}
+											<span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+										</Link>
+									))}
+								</div>
+							</div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-full flex items-center">
-          <div className="max-w-2xl space-y-6 sm:space-y-8 z-10 animate-in slide-in-from-left duration-1000">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight font-sans text-white tracking-tight">
-              Elevate Your Space with{" "}
-              <span className="text-brown-600 animate-in fade-in-50 duration-1000 delay-200">Luxury</span>
-              <br />
-              Embrace{" "}
-              <span className="text-white animate-in fade-in-50 duration-1000 delay-300">Timeless Simplicity</span>
-            </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-primary-foreground/90 font-serif leading-relaxed max-w-md animate-in fade-in-50 duration-1000 delay-400">
-              Discover our curated collection of premium furniture, blending exquisite design with unparalleled comfort.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 animate-in slide-in-from-bottom duration-1000 delay-500">
-              <Button
-                size="lg"
-                className="bg-brown-600 text-white hover:bg-brown-700 font-serif font-bold tracking-wide px-6 sm:px-8 py-3 rounded-xl border-2 border-brown-400 transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-brown-800/50 relative overflow-hidden group"
-                onClick={() => router.push("/living-room")}
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
-                Shop Now
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-6 sm:px-8 py-3 rounded-xl border-brown-400 text-brown-600 hover:bg-brown-100/50 hover:border-brown-500 transition-all duration-300 hover:scale-105"
-                onClick={() => router.push("/about")}
-              >
-                About Us
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-4 sm:pt-6 text-center sm:text-left animate-in fade-in-50 duration-1000 delay-600">
-              <div>
-                <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Quality</h4>
-                <p className="text-sm text-primary-foreground/80 font-serif">Unmatched Craftsmanship</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Style</h4>
-                <p className="text-sm text-primary-foreground/80 font-serif">Modern Elegance</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-base sm:text-lg text-primary-foreground">Comfort</h4>
-                <p className="text-sm text-primary-foreground/80 font-serif">Ultimate Relaxation</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+							<div className="flex items-center space-x-2 sm:space-x-4">
+								<Button
+									variant="ghost"
+									size="icon"
+									onClick={() => setShowSearch(true)}
+									className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:rotate-12"
+								>
+									<Search className="h-4 w-4 sm:h-5 sm:w-5" />
+								</Button>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:text-red-500 hidden sm:flex"
+								>
+									<Heart className="h-4 w-4 sm:h-5 sm:w-5" />
+								</Button>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:-rotate-12 relative"
+									onClick={toggleCart}
+								>
+									<ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+									{cart.length > 0 && (
+										<span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full px-1.5 py-0.5 font-bold shadow min-w-[18px] text-center">
+											{cart.length}
+										</span>
+									)}
+								</Button>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hidden sm:flex"
+								>
+									<User className="h-4 w-4 sm:h-5 sm:w-5" />
+								</Button>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="md:hidden hover:scale-125 transition-all duration-300 hover:bg-primary/10"
+									onClick={toggleMobileMenu}
+								>
+									<Menu className="h-5 w-5" />
+								</Button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</nav>
 
-      {newArrivals.length > 0 && (
-        <section className="py-16 bg-accent/10 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(139,90,43,0.02)_50%,transparent_75%)] bg-[length:60px_60px] animate-pulse"></div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="text-center mb-12 animate-in fade-in-50 duration-800">
-              <h3 className="text-3xl font-bold text-foreground mb-4 font-sans relative inline-block">
-                New Arrivals
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
-              </h3>
-              <p className="text-muted-foreground font-serif">Fresh additions to our premium collection</p>
-            </div>
+			{/* Improved Hero (Next.js + Tailwind) */}
+			<section role="banner" aria-label="Hero - Luxury furniture" className="relative bg-black overflow-hidden">
+				{/* Background image (LCP) */}
+				<div className="absolute inset-0">
+					<Image
+						src={heroImg}
+						alt="Luxury furniture showcase in a modern living room"
+						fill
+						priority
+						placeholder="blur"
+						sizes="(max-width:640px) 100vw, (max-width:1024px) 80vw, 50vw"
+						className="object-cover object-center"
+						quality={75}
+						aria-hidden="false"
+					/>
+					{/* Strong overlay for legibility + radial "spotlight" */}
+					<div className="absolute inset-0 bg-gradient-to-br from-black/65 via-black/30 to-transparent"></div>
+					<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,90,43,0.12),transparent_55%)] pointer-events-none"></div>
+				</div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {newArrivals.map((product, index) => (
-                <Card
-                  key={product._id}
-                  className={`group cursor-pointer hover:shadow-2xl transition-all duration-700 border-border hover:border-primary/30 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-4 hover:rotate-1 relative overflow-hidden`}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <CardContent className="p-0 relative">
-                    <div className="relative aspect-square overflow-hidden rounded-t-lg">
-                      <img
-                        src={
-                          product.imageUrl ||
-                          `/abstract-geometric-shapes.png?height=400&width=400&query=${product.name || "/placeholder.svg"}`
-                        }
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700"
-                      />
-                      <Badge className="absolute top-4 left-4 bg-accent text-accent-foreground font-serif animate-in zoom-in-50 duration-500 delay-300 hover:scale-110 transition-transform duration-300">
-                        New
-                      </Badge>
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-125 hover:bg-red-50 hover:text-red-500"
-                      >
-                        <Heart className="h-4 w-4" />
-                      </Button>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    </div>
-                    <div className="p-6">
-                      <h4 className="text-lg font-semibold text-foreground mb-2 font-sans group-hover:text-primary transition-colors duration-500">
-                        {product.name}
-                      </h4>
-                      <p className="text-sm text-muted-foreground mb-3 font-serif line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xl font-bold text-primary font-sans group-hover:scale-110 transition-transform duration-300">
-                          Ksh{product.price}
-                        </span>
-                        <Button
-                          size="sm"
-                          className="bg-primary hover:bg-primary/90 font-serif hover:scale-110 transition-all duration-300 hover:shadow-lg relative overflow-hidden group/btn"
-                          onClick={() => handleAddToCart(product)}
-                        >
-                          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></span>
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          Add to Cart
-                        </Button>
-                      </div>
-                      <div className="pt-2 border-t border-border">
-                        <InterestForm
-                          productId={product._id}
-                          productName={product.name}
-                          productPrice={product.price.toString()}
-                          triggerClassName="w-full"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+				<div className="relative w-full px-4 sm:px-6 lg:px-8 h-[420px] sm:h-[550px] lg:h-[700px] flex items-center">
+					<div className="max-w-7xl mx-auto w-full z-10">
+						<div className="max-w-2xl space-y-4 sm:space-y-6 lg:space-y-8">
+							{/* fluid typography using clamp for better responsiveness */}
+							<h1
+								className="font-sans font-bold text-white leading-tight tracking-tight"
+								style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.75rem)" }}
+							>
+								Elevate your space —{" "}
+								<span className="text-[#8b5a2b]">Luxury</span>
+								<br />
+								Timeless simplicity, handcrafted comfort
+							</h1>
 
-      {saleProducts.length > 0 && (
-        <section className="py-16 bg-destructive/5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12 animate-in fade-in-50 duration-800">
-              <h3 className="text-3xl font-bold text-foreground mb-4 font-sans">Special Offers</h3>
-              <p className="text-muted-foreground font-serif">Limited time deals and exclusive promotions</p>
-            </div>
+							<p className="text-sm sm:text-base lg:text-lg text-white/90 font-serif max-w-lg">
+								Curated premium furniture designed to bring warmth and refined simplicity to your home.
+							</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {saleProducts.map((product, index) => (
-                <Card
-                  key={product._id}
-                  className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-3`}
-                >
-                  <CardContent className="p-0">
-                    <div className="relative aspect-square overflow-hidden rounded-t-lg">
-                      <img
-                        src={
-                          product.imageUrl ||
-                          `/abstract-geometric-shapes.png?height=400&width=400&query=${product.name || "/placeholder.svg"}`
-                        }
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <Badge
-                        className={`absolute top-4 left-4 font-serif animate-in zoom-in-50 duration-500 delay-300 ${
-                          product.category === "bogo" ? "bg-green-600" : "bg-destructive"
-                        }`}
-                      >
-                        {product.category === "bogo" ? "BOGO" : product.category === "promotion" ? "Special" : "Sale"}
-                      </Badge>
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
-                      >
-                        <Heart className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="p-6">
-                      <h4 className="text-lg font-semibold text-foreground mb-2 font-sans group-hover:text-primary transition-colors duration-300">
-                        {product.name}
-                      </h4>
-                      <p className="text-sm text-muted-foreground mb-3 font-serif line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xl font-bold text-primary font-sans">Ksh{product.price}</span>
-                        <Button
-                          size="sm"
-                          className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200"
-                          onClick={() => handleAddToCart(product)}
-                        >
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          Add to Cart
-                        </Button>
-                      </div>
-                      <div className="pt-2 border-t border-border">
-                        <InterestForm
-                          productId={product._id}
-                          productName={product.name}
-                          productPrice={product.price.toString()}
-                          triggerClassName="w-full"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+							{/* CTA group */}
+							<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
+								<Button
+									size="lg"
+									aria-label="Shop living room furniture"
+									className="bg-[#8b5a2b] text-white hover:bg-[#6f4822] font-serif font-semibold px-6 py-3 rounded-xl border-2 border-[#a67c4f] transition-transform motion-safe:transform-gpu hover:scale-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#8b5a2b]/30"
+									onClick={() => router.push("/living-room")}
+								>
+									<span className="relative z-10">Shop Now</span>
+								</Button>
 
-      <section className="py-24 bg-background relative overflow-hidden">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-10 right-10 w-48 h-48 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+								<Button
+									variant="outline"
+									size="lg"
+									className="px-6 py-3 rounded-xl border-[#a67c4f] text-[#8b5a2b] bg-transparent hover:bg-white/5 transition-all focus-visible:ring-4 focus-visible:ring-[#8b5a2b]/20"
+									onClick={() => router.push("/about")}
+								>
+									About Us
+								</Button>
+							</div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-16 animate-in fade-in-50 duration-800">
-            <h3 className="text-4xl font-bold text-primary mb-4 font-sans relative inline-block tracking-tight">
-              Shop by Category
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
-            </h3>
-            <p className="text-lg text-muted-foreground font-serif">Find the perfect pieces for every room in your home</p>
-          </div>
+							{/* trust/feature row */}
+							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 sm:pt-6 text-center sm:text-left text-white/90">
+								<div>
+									<h4 className="font-semibold text-sm sm:text-base">Quality</h4>
+									<p className="text-xs sm:text-sm font-serif">Unmatched craftsmanship</p>
+								</div>
+								<div>
+									<h4 className="font-semibold text-sm sm:text-base">Style</h4>
+									<p className="text-xs sm:text-sm font-serif">Modern elegance</p>
+								</div>
+								<div>
+									<h4 className="font-semibold text-sm sm:text-base">Comfort</h4>
+									<p className="text-xs sm:text-sm font-serif">Ultimate relaxation</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-            {[
-              { name: "Living Room", image: "/livingroom.png", items: "120+ items", href: "/living-room", color: "from-amber-200 to-amber-100" },
-              { name: "Bedroom", image: "/bed.png", items: "85+ items", href: "/bedroom", color: "from-amber-100 to-amber-50" },
-              { name: "Dining", image: "/dining.png", items: "65+ items", href: "/dining", color: "from-accent to-primary/10" },
-              { name: "Office", image: "/office.png", items: "45+ items", href: "/office", color: "from-primary/10 to-accent/10" },
-            ].map((category, index) => (
-              <Link key={category.name} href={category.href}>
-                <Card
-                  className={`
-                    group cursor-pointer border-none shadow-lg hover:shadow-2xl transition-all duration-500
-                    rounded-3xl overflow-hidden bg-gradient-to-br ${category.color}
-                    hover:scale-105 animate-in slide-in-from-bottom duration-600 delay-${(index + 1) * 100}
-                    relative
-                  `}
-                >
-                  <CardContent className="p-0 relative">
-                    <div className="aspect-square overflow-hidden rounded-t-3xl relative">
-                      <img
-                        src={category.image}
-                        alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/10">
-                        <div className="bg-white/90 rounded-full p-4 transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-200 shadow-lg">
-                          <span className="text-3xl">
-                            {index === 0 ? "🛋️" : index === 1 ? "🛏️" : index === 2 ? "🍽️" : "💼"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-8 text-center">
-                      <h4 className="text-2xl font-semibold text-primary mb-2 font-sans group-hover:text-amber-700 transition-colors duration-500">
-                        {category.name}
-                      </h4>
-                      <p className="text-base text-muted-foreground font-serif group-hover:text-foreground transition-colors duration-300">
-                        {category.items}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+			{/* New Arrivals Section */}
+			{newArrivals.length > 0 && (
+				<section className="py-12 sm:py-16 bg-gradient-to-b from-white via-[#fdfbf9] to-[#f5f0eb] relative overflow-hidden">
+					{/* Subtle background pattern */}
+					<div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(139,90,43,0.03)_50%,transparent_75%)] bg-[length:50px_50px] animate-pulse"></div>
 
-      <section className="py-16 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 animate-in fade-in-50 duration-800">
-            <h3 className="text-3xl font-bold text-foreground mb-4 font-sans">Featured Products</h3>
-            <p className="text-muted-foreground font-serif">
-              {featuredProducts.length > 0
-                ? "Latest additions from our admin"
-                : "No featured products available at the moment."}
-            </p>
-          </div>
+					<div className="w-full px-4 sm:px-6 lg:px-8 relative">
+						<div className="max-w-7xl mx-auto">
+							{/* Section Header */}
+							<div className="text-center mb-8 sm:mb-12 animate-in fade-in-50 duration-800">
+								<h3 className="text-2xl sm:text-3xl font-bold text-black mb-4 font-serif relative inline-block">
+									New Arrivals
+									<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-[#8b5a2b] via-black to-[#8b5a2b] rounded-full"></div>
+								</h3>
+								<p className="text-gray-700 font-serif text-sm sm:text-base italic">
+									Fresh additions to our premium collection
+								</p>
+							</div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts.length > 0 &&
-              featuredProducts.map((product, index) => (
-                <Card
-                  key={product._id}
-                  className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${(index + 1) * 150} hover:-translate-y-3`}
-                >
-                  <CardContent className="p-0">
-                    <div className="relative aspect-square overflow-hidden rounded-t-lg">
-                      <img
-                        src={
-                          product.imageUrl ||
-                          `/abstract-geometric-shapes.png?height=400&width=400&query=${product.name || "/placeholder.svg"}`
-                        }
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
-                      >
-                        <Heart className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="p-6">
-                      <h4 className="text-lg font-semibold text-foreground mb-2 font-sans group-hover:text-primary transition-colors duration-300">
-                        {product.name}
-                      </h4>
-                      <p className="text-sm text-muted-foreground mb-3 font-serif line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xl font-bold text-primary font-sans">Ksh{product.price}</span>
-                        <Button
-                          size="sm"
-                          className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200"
-                          onClick={() => handleAddToCart(product)}
-                        >
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          Add to Cart
-                        </Button>
-                      </div>
-                      <div className="pt-2 border-t border-border">
-                        <InterestForm
-                          productId={product._id}
-                          productName={product.name}
-                          productPrice={product.price.toString()}
-                          triggerClassName="w-full"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
-        </div>
-      </section>
+							{/* Product Grid */}
+							{!isLoaded ? (
+								<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+									{[...Array(6)].map((_, i) => (
+										<Skeleton key={i} className="h-72 sm:h-80 w-full rounded-lg" />
+									))}
+								</div>
+							) : (
+								<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+									{newArrivals.map((product, index) => (
+										<Card
+											key={product._id}
+											className={`group cursor-pointer hover:shadow-xl transition-all duration-700 border border-[#8b5a2b]/20 hover:border-[#8b5a2b] rounded-xl overflow-hidden bg-white`}
+										>
+											{/* Hover overlay */}
+											<div className="absolute inset-0 bg-gradient-to-br from-[#8b5a2b]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
-      <section className="py-16 bg-primary relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.1)_0%,transparent_50%)] animate-pulse"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.05)_0%,transparent_50%)] animate-pulse delay-1000"></div>
+											<CardContent className="p-0 relative">
+												{/* Product Image */}
+												<div className="relative aspect-square overflow-hidden">
+													<Image
+														src={product.imageUrl || "/placeholder.svg"}
+														alt={product.name}
+														width={400}
+														height={400}
+														className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+													/>
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-in fade-in-50 duration-800 relative">
-          <h3 className="text-3xl font-bold text-primary-foreground mb-4 font-sans animate-in slide-in-from-top duration-600 hover:scale-105 transition-transform duration-300">
-            Stay Updated
-          </h3>
-          <p className="text-primary-foreground/90 mb-8 font-serif animate-in fade-in-50 duration-800 delay-200">
-            Get the latest updates on new arrivals and exclusive offers
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto animate-in slide-in-from-bottom duration-800 delay-400">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={newsletterEmail}
-              onChange={e => setNewsletterEmail(e.target.value)}
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-primary-foreground/20 font-serif transition-all duration-500 focus:scale-105 hover:shadow-lg"
-            />
-            <Button
-              variant="secondary"
-              size="lg"
-              className="font-serif hover:scale-110 transition-all duration-300 hover:shadow-xl relative overflow-hidden group"
-              onClick={handleNewsletterSubscribe}
-              disabled={newsletterLoading}
-            >
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
-              {newsletterLoading ? "Subscribing..." : "Subscribe"}
-            </Button>
-          </div>
-          {newsletterMsg && (
-            <p className="text-primary-foreground mt-4">{newsletterMsg}</p>
-          )}
-        </div>
-      </section>
-{/* Testimonials Section */}
-{(() => {
-  const [testimonials, setTestimonials] = useState([
-    {
-      id: 1,
-      name: "Wanjiku Mwangi",
-      rating: 5,
-      comment: "Haven Furnitures transformed my living space with their stunning designs and top-notch quality. Highly recommend!",
-      image: "/placeholder-user.jpg",
-    },
-    {
-      id: 2,
-      name: "Kiptoo Ngetich",
-      rating: 4,
-      comment: "The furniture is both stylish and comfortable. The delivery was prompt, and customer service was excellent.",
-      image: "/placeholder-user.jpg",
-    },
-    {
-      id: 3,
-      name: "Aisha Otieno",
-      rating: 5,
-      comment: "I love the modern elegance of their pieces. My dining set is a conversation starter at every gathering!",
-      image: "/placeholder-user.jpg",
-    },
-    {
-      id: 4,
-      name: "Musa Kipchoge",
-      rating: 5,
-      comment: "The quality of their office furniture is unmatched. My home office feels both professional and cozy now!",
-      image: "/placeholder-user.jpg",
-    },
-    {
-      id: 5,
-      name: "Fatuma Wambui",
-      rating: 4,
-      comment: "Amazing selection and great value for money. The sofa I bought is the highlight of my living room!",
-      image: "/placeholder-user.jpg",
-    },
-  ])
+													{/* "New" Badge */}
+													<Badge className="absolute top-3 left-3 bg-[#8b5a2b] text-white font-serif shadow-md text-xs px-2 py-1 rounded-md">
+														New
+													</Badge>
 
-  const [currentIndex, setCurrentIndex] = useState(0)
+													{/* Wishlist Heart */}
+													<Button
+														size="icon"
+														variant="secondary"
+														className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm border border-[#8b5a2b]/30 text-[#8b5a2b] opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 w-8 h-8 rounded-full"
+													>
+														<Heart className="h-3 w-3" />
+													</Button>
+												</div>
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length) // loops back to 0
-  }
+												{/* Product Info */}
+												<div className="p-3 sm:p-5">
+													<h4 className="text-sm sm:text-lg font-semibold text-black mb-1 font-serif group-hover:text-[#8b5a2b] transition-colors duration-500 line-clamp-1">
+														{product.name}
+													</h4>
+													<p className="text-xs sm:text-sm text-gray-600 mb-2 font-light line-clamp-2">
+														{product.description}
+													</p>
 
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length) // loops back to last
-  }
+													{/* Price + Cart */}
+													<div className="flex items-center justify-between mb-3">
+														<span className="text-base sm:text-xl font-bold text-[#8b5a2b] font-sans group-hover:scale-110 transition-transform duration-300">
+															Ksh {product.price}
+														</span>
+														<Button
+															size="sm"
+															className="bg-[#8b5a2b] text-white hover:bg-black transition-all duration-300 hover:shadow-md
+             text-[10px] sm:text-sm px-2 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-1 sm:gap-2"
+															onClick={() => handleAddToCart(product)}
+														>
+															<ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
+															<span className="hidden sm:inline">Add to Cart</span>
+															<span className="sm:hidden">Add</span>
+														</Button>
+													</div>
 
-  return (
-    <section
-      className="py-16 bg-primary/10 border-t border-border relative overflow-hidden"
-      aria-labelledby="testimonials-heading"
-    >
-      {/* Background Animation */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,90,43,0.1),transparent_70%)] animate-pulse opacity-50"></div>  
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <h3
-          id="testimonials-heading"
-          className="text-3xl font-bold text-primary text-center mb-10 font-sans animate-in fade-in zoom-in-50 duration-1000 ease-out"
-        >
-          What Our Customers Say
-          <div className="mt-2 mx-auto w-16 h-1 bg-gradient-to-r from-primary to-accent rounded-full transform scale-x-0 animate-in slide-in-from-bottom duration-1000 ease-out delay-200 origin-center"></div>
-        </h3>
+													{/* Interest Form */}
+													<div className="pt-2 border-t border-gray-200">
+														<InterestForm
+															productId={product._id}
+															productName={product.name}
+															productPrice={product.price.toString()}
+															triggerClassName="w-full text-xs sm:text-sm"
+														/>
+													</div>
+												</div>
+											</CardContent>
+										</Card>
+									))}
+								</div>
+							)}
+						</div>
+					</div>
+				</section>
+			)}
 
-        <div className="relative">
-          {/* Carousel Container */}
-          <div className="overflow-hidden">
-            <div
-              className="flex transition-transform duration-700 ease-in-out"
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-            >
-              {testimonials.map((testimonial, index) => (
-                <div
-                  key={testimonial.id}
-                  className="min-w-full md:min-w-[50%] lg:min-w-[33.33%] px-4"
-                >
-                  <Card
-                    className={`border-border hover:border-primary/30 hover:shadow-xl transition-all duration-700 ease-in-out animate-in slide-in-from-bottom zoom-in-75 duration-1000 delay-${
-                      (index + 1) * 200
-                    } hover:-translate-y-2 hover:scale-105 group relative overflow-hidden`}
-                    role="article"
-                    aria-label={`Testimonial by ${testimonial.name}`}
-                  >
-                    {/* Card Hover Background Animation */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-in-out"></div>
+			{/* Special Offers Section */}
+			{saleProducts.length > 0 && (
+				<section className="py-12 sm:py-16 bg-destructive/5">
+					<div className="w-full px-4 sm:px-6 lg:px-8">
+						<div className="max-w-7xl mx-auto">
+							<div className="text-center mb-8 sm:mb-12 animate-in fade-in-50 duration-800">
+								<h3 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 font-sans">
+									Special Offers
+								</h3>
+								<p className="text-muted-foreground font-serif text-sm sm:text-base">
+									Limited time deals and exclusive promotions
+								</p>
+							</div>
 
-                    <CardContent className="p-6 relative">
-                      <div className="flex items-center mb-4">
-                        <img
-                          src={testimonial.image}
-                          alt={`${testimonial.name}'s avatar`}
-                          className="w-12 h-12 rounded-full object-cover mr-4 transform scale-90 group-hover:scale-100 transition-transform duration-500 ease-in-out"
-                          loading="lazy"
-                        />
-                        <div>
-                          <h4 className="text-lg font-semibold text-black font-sans transition-colors duration-500 ease-in-out group-hover:text-primary">
-                            {testimonial.name}
-                          </h4>
-                          <div className="flex items-center" aria-label={`${testimonial.rating} out of 5 stars`}>
-                            {[...Array(testimonial.rating)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className="h-4 w-4 text-yellow-400 fill-yellow-400 transform scale-90 group-hover:scale-110 transition-transform duration-300 ease-in-out"
-                                aria-hidden="true"
-                              />
-                            ))}
-                            {[...Array(5 - testimonial.rating)].map((_, i) => (
-                              <Star
-                                key={i + testimonial.rating}
-                                className="h-4 w-4 text-gray-300 transform scale-90 group-hover:scale-110 transition-transform duration-300 ease-in-out"
-                                aria-hidden="true"
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      {/* ✅ Always visible text */}
-                      <p className="text-black font-serif text-sm leading-relaxed transition-opacity duration-500 ease-in-out">
-                        "{testimonial.comment}"
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-            </div>
-          </div>
+							{!isLoaded ? (
+								<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+									{[...Array(6)].map((_, i) => (
+										<Skeleton key={i} className="h-80 sm:h-96 w-full rounded-lg" />
+									))}
+								</div>
+							) : (
+								<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+									{saleProducts.map((product, index) => (
+										<Card
+											key={product._id}
+											className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${
+												(index + 1) * 150
+											} hover:-translate-y-3`}
+										>
+											<CardContent className="p-0">
+												<div className="relative aspect-square overflow-hidden rounded-t-lg">
+													<Image
+														src={product.imageUrl || "/placeholder.svg"}
+														alt={product.name}
+														width={400}
+														height={400}
+														className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+													/>
+													<Badge
+														className={`absolute top-3 left-3 font-serif animate-in zoom-in-50 duration-500 delay-300 text-xs ${
+															product.category === "bogo" ? "bg-green-600" : "bg-destructive"
+														}`}
+													>
+														{product.category === "bogo"
+															? "BOGO"
+															: product.category === "promotion"
+															? "Special"
+															: "Sale"}
+													</Badge>
+													<Button
+														size="icon"
+														variant="secondary"
+														className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 w-8 h-8"
+													>
+														<Heart className="h-3 w-3" />
+													</Button>
+												</div>
+												<div className="p-4 sm:p-6">
+													<h4 className="text-base sm:text-lg font-semibold text-foreground mb-2 font-sans group-hover:text-primary transition-colors duration-300 line-clamp-1">
+														{product.name}
+													</h4>
+													<p className="text-xs sm:text-sm text-muted-foreground mb-3 font-serif line-clamp-2">
+														{product.description}
+													</p>
+													<div className="flex items-center justify-between mb-3 gap-2">
+														<span className="text-lg sm:text-xl font-bold text-primary font-sans">
+															Ksh {product.price}
+														</span>
+														<Button
+															size="sm"
+															className="bg-primary hover:bg-primary/90 font-serif hover:scale-105 transition-transform duration-200 text-xs sm:text-sm px-2 sm:px-3"
+															onClick={() => handleAddToCart(product)}
+														>
+															<ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+															<span className="hidden sm:inline">Add to Cart</span>
+															<span className="sm:hidden">Add</span>
+														</Button>
+													</div>
+													<div className="pt-2 border-t border-border">
+														<InterestForm
+															productId={product._id}
+															productName={product.name}
+															productPrice={product.price.toString()}
+															triggerClassName="w-full text-xs sm:text-sm"
+														/>
+													</div>
+												</div>
+											</CardContent>
+										</Card>
+									))}
+								</div>
+							)}
+						</div>
+					</div>
+				</section>
+			)}
 
-          {/* Navigation Buttons */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-background/80 hover:bg-primary/20 transition-all duration-300 ease-in-out hover:scale-110"
-            onClick={prevSlide}
-            aria-label="Previous testimonial"
-          >
-            <svg
-              className="h-6 w-6 text-primary"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-background/80 hover:bg-primary/20 transition-all duration-300 ease-in-out hover:scale-110"
-            onClick={nextSlide}
-            aria-label="Next testimonial"
-          >
-            <svg
-              className="h-6 w-6 text-primary"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Button>
-        </div>
-      </div>
-    </section>
-  )
-})()}
+			{/* Shop by Category Section */}
+			<section className="py-16 sm:py-24 bg-background relative overflow-hidden">
+				<div className="absolute top-10 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+				<div className="absolute bottom-10 right-10 w-48 h-48 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
 
-    
-      <footer className="bg-card py-12 border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-8">
-            <div className="animate-in fade-in-50 duration-600">
-              <h4 className="text-lg font-bold text-foreground mb-4 font-sans">Haven Furnitures</h4>
-              <p className="text-muted-foreground font-serif">
-                Creating beautiful spaces with premium furniture since 2020.
-              </p>
-              <div className="mt-4 pt-4 border-t border-border">
-                <h5 className="font-semibold text-foreground mb-2 font-sans text-sm">Business Hours</h5>
-                <div className="text-sm text-muted-foreground font-serif space-y-1">
-                  <p>Mon - Sat: 8:00 AM - 7:00 PM</p>
-                  <p>Sunday: 12:00 PM - 6:00 PM</p>
-                </div>
-              </div>
-            </div>
-            <div className="animate-in fade-in-50 duration-600 delay-100">
-              <h5 className="font-semibold text-foreground mb-4 font-sans">Shop</h5>
-              <ul className="space-y-2 text-muted-foreground font-serif">
-                <li>
-                  <Link href="/living-room" className="hover:text-primary transition-colors duration-300">
-                    Sofas
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/bedroom" className="hover:text-primary transition-colors duration-300">
-                    Beds
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/dining" className="hover:text-primary transition-colors duration-300">
-                    Dining Sets
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    TV Stands
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Shoe Racks
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="animate-in fade-in-50 duration-600 delay-200">
-              <h5 className="font-semibold text-foreground mb-4 font-sans">Support</h5>
-              <ul className="space-y-2 text-muted-foreground font-serif">
-                <li>
-                  <Link href="/contact" className="hover:text-primary transition-colors duration-300">
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/faq" className="hover:text-primary transition-colors duration-300">
-                    FAQ
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Shipping Info
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Returns
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="animate-in fade-in-50 duration-600 delay-300">
-              <h5 className="font-semibold text-foreground mb-4 font-sans">Company</h5>
-              <ul className="space-y-2 text-muted-foreground font-serif">
-                <li>
-                  <Link href="/about" className="hover:text-primary transition-colors duration-300">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-300">
-                    Press
-                  </a>
-                </li>
-                <li>
-                  <Link href="/privacy" className="hover:text-primary transition-colors duration-300">
-                    Privacy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-border mt-8 pt-8">
-            <div className="flex flex-col items-center justify-center space-y-4 animate-in fade-in-50 duration-800">
-              <div className="flex items-center space-x-3">
-                <img
-                  src="/images/smo-logo.png"
-                  alt="SMO Logo"
-                  className="h-8 w-8 hover:scale-110 transition-transform duration-300"
-                />
-                <p className="text-muted-foreground font-serif text-sm">
-                  Designed, built and managed by{" "}
-                  <a
-                    href="https://ondieki1237.github.io/sethbellarin/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 transition-colors duration-300 font-semibold hover:underline"
-                  >
-                    Seth Bellarin
-                  </a>
-                </p>
-              </div>
-              <p className="text-muted-foreground font-serif text-sm">
-                &copy; 2024 Haven Furnitures. All rights reserved.
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  )
+				<div className="w-full px-4 sm:px-6 lg:px-8 relative">
+					<div className="max-w-7xl mx-auto">
+						<div className="text-center mb-12 sm:mb-16 animate-in fade-in-50 duration-800">
+							<h3 className="text-3xl sm:text-4xl font-bold text-primary mb-4 font-sans relative inline-block tracking-tight">
+								Shop by Category
+								<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
+							</h3>
+							<p className="text-base sm:text-lg text-muted-foreground font-serif">
+								Find the perfect pieces for every room in your home
+							</p>
+						</div>
+
+						<div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+							{[
+								{
+									name: "Living Room",
+									image: "/livingroom.png",
+									items: "120+ items",
+									href: "/living-room",
+									color: "from-amber-200 to-amber-100",
+								},
+								{
+									name: "Bedroom",
+									image: "/bed.png",
+									items: "85+ items",
+									href: "/bedroom",
+									color: "from-amber-100 to-amber-50",
+								},
+								{
+									name: "Dining",
+									image: "/dining.png",
+									items: "65+ items",
+									href: "/dining",
+									color: "from-accent to-primary/10",
+								},
+								{
+									name: "Office",
+									image: "/office.png",
+									items: "45+ items",
+									href: "/office",
+									color: "from-primary/10 to-accent/10",
+								},
+							].map((category, index) => (
+								<Link key={category.name} href={category.href}>
+									<Card
+										className={`group cursor-pointer border-none shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br ${category.color} hover:scale-105 animate-in slide-in-from-bottom duration-600 delay-${
+											(index + 1) * 100
+										} relative`}
+									>
+										<CardContent className="p-0 relative">
+											<div className="aspect-square overflow-hidden rounded-t-2xl sm:rounded-t-3xl relative">
+												<Image
+													src={category.image || "/placeholder.svg"}
+													alt={`${category.name} category`}
+													width={400}
+													height={400}
+													className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+												/>
+												<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/10">
+													<div className="bg-white/90 rounded-full p-3 sm:p-4 transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-200 shadow-lg">
+														<span className="text-2xl sm:text-3xl">
+															{index === 0 ? "🛋️" : index === 1 ? "🛏️" : index === 2 ? "🍽️" : "💼"}
+														</span>
+													</div>
+												</div>
+											</div>
+											<div className="p-4 sm:p-6 lg:p-8 text-center">
+												<h4 className="text-lg sm:text-xl lg:text-2xl font-semibold text-primary mb-1 sm:mb-2 font-sans group-hover:text-amber-700 transition-colors duration-500">
+													{category.name}
+												</h4>
+												<p className="text-sm sm:text-base text-muted-foreground font-serif group-hover:text-foreground transition-colors duration-300">
+													{category.items}
+												</p>
+											</div>
+										</CardContent>
+									</Card>
+								</Link>
+							))}
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* Testimonials Section */}
+			<section
+				className="py-12 sm:py-16 bg-primary/10 border-t border-border relative overflow-hidden"
+				aria-labelledby="testimonials-heading"
+				role="region"
+				aria-roledescription="carousel"
+			>
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,90,43,0.1),transparent_70%)] animate-pulse opacity-50"></div>
+				<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+					<h3
+						id="testimonials-heading"
+						className="text-2xl sm:text-3xl font-bold text-primary text-center mb-8 sm:mb-10 font-sans animate-in fade-in zoom-in-50 duration-1000 ease-out"
+					>
+						What Our Customers Say
+						<div className="mt-2 mx-auto w-16 h-1 bg-gradient-to-r from-primary to-accent rounded-full transform scale-x-0 animate-in slide-in-from-bottom duration-1000 ease-out delay-200 origin-center"></div>
+					</h3>
+
+					<div className="relative" aria-live="polite">
+						<div className="overflow-hidden">
+							<div
+								className="flex transition-transform duration-700 ease-in-out"
+								style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+							>
+								{testimonials.map((testimonial, index) => (
+									<div key={testimonial.id} className="min-w-full px-4" role="group" aria-roledescription="slide">
+										<Card
+											className={`border-border hover:border-primary/30 hover:shadow-xl transition-all duration-700 ease-in-out animate-in slide-in-from-bottom zoom-in-75 duration-1000 delay-${
+												(index + 1) * 200
+											} hover:-translate-y-2 hover:scale-105 group relative overflow-hidden max-w-2xl mx-auto`}
+											role="article"
+											aria-label={`Testimonial by ${testimonial.name}`}
+										>
+											<div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-in-out"></div>
+											<CardContent className="p-4 sm:p-6 relative">
+												<div className="flex items-center mb-4">
+													<Image
+														src={testimonial.image || "/placeholder.svg"}
+														alt={`${testimonial.name}'s profile picture`}
+														width={48}
+														height={48}
+														className="rounded-full object-cover mr-3 sm:mr-4 transform scale-90 group-hover:scale-100 transition-transform duration-500 ease-in-out w-10 h-10 sm:w-12 sm:h-12"
+													/>
+													<div>
+														<h4 className="text-base sm:text-lg font-semibold text-black font-sans transition-colors duration-500 ease-in-out group-hover:text-primary">
+															{testimonial.name}
+														</h4>
+														<div className="flex items-center" aria-label={`${testimonial.rating} out of 5 stars`}>
+															{[...Array(testimonial.rating)].map((_, i) => (
+																<Star
+																	key={i}
+																	className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400 fill-yellow-400 transform scale-90 group-hover:scale-110 transition-transform duration-300 ease-in-out"
+																	aria-hidden="true"
+																/>
+															))}
+															{[...Array(5 - testimonial.rating)].map((_, i) => (
+																<Star
+																	key={i + testimonial.rating}
+																	className="h-3 w-3 sm:h-4 sm:w-4 text-gray-300 transform scale-90 group-hover:scale-110 transition-transform duration-300 ease-in-out"
+																	aria-hidden="true"
+																/>
+															))}
+														</div>
+													</div>
+												</div>
+												<p className="text-black font-serif text-sm sm:text-base leading-relaxed transition-opacity duration-500 ease-in-out">
+													"{testimonial.comment}"
+												</p>
+											</CardContent>
+										</Card>
+									</div>
+								))}
+							</div>
+						</div>
+
+						<Button
+							variant="ghost"
+							size="icon"
+							className="absolute top-1/2 left-2 sm:left-0 transform -translate-y-1/2 bg-background/80 hover:bg-primary/20 transition-all duration-300 ease-in-out hover:scale-110 w-8 h-8 sm:w-10 sm:h-10"
+							onClick={prevSlide}
+							aria-label="Previous testimonial"
+						>
+							<svg
+								className="h-4 w-4 sm:h-6 sm:w-6 text-primary"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+							</svg>
+						</Button>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="absolute top-1/2 right-2 sm:right-0 transform -translate-y-1/2 bg-background/80 hover:bg-primary/20 transition-all duration-300 ease-in-out hover:scale-110 w-8 h-8 sm:w-10 sm:h-10"
+							onClick={nextSlide}
+							aria-label="Next testimonial"
+						>
+							<svg
+								className="h-4 w-4 sm:h-6 sm:w-6 text-primary"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+							</svg>
+						</Button>
+
+						<div className="flex justify-center mt-4 space-x-2">
+							{testimonials.map((_, index) => (
+								<button
+									key={index}
+									className={`h-2 w-2 rounded-full transition-all duration-300 ${
+										index === currentIndex ? "bg-primary scale-125" : "bg-gray-300"
+									}`}
+									onClick={() => setCurrentIndex(index)}
+									aria-label={`Go to testimonial ${index + 1}`}
+								/>
+							))}
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* Newsletter Section */}
+			<section className="py-12 sm:py-16 bg-primary relative overflow-hidden">
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.1)_0%,transparent_50%)] animate-pulse"></div>
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.05)_0%,transparent_50%)] animate-pulse delay-1000"></div>
+
+				<div className="w-full px-4 sm:px-6 lg:px-8 text-center animate-in fade-in-50 duration-800 relative">
+					<div className="max-w-2xl mx-auto">
+						<h3 className="text-2xl sm:text-3xl font-bold text-primary-foreground mb-4 font-sans animate-in slide-in-from-top duration-600 hover:scale-105 transition-transform duration-300">
+							Stay Updated
+						</h3>
+						<p className="text-primary-foreground/90 mb-6 sm:mb-8 font-serif animate-in fade-in-50 duration-800 delay-200 text-sm sm:text-base">
+							Get the latest updates on new arrivals and exclusive offers
+						</p>
+						<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto animate-in slide-in-from-bottom duration-800 delay-400">
+							<input
+								type="email"
+								placeholder="Enter your email"
+								value={newsletterEmail}
+								onChange={(e) => setNewsletterEmail(e.target.value)}
+								className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-primary-foreground/20 font-serif transition-all duration-500 focus:scale-105 hover:shadow-lg text-sm sm:text-base"
+							/>
+							<Button
+								variant="secondary"
+								size="lg"
+								className="font-serif hover:scale-110 transition-all duration-300 hover:shadow-xl relative overflow-hidden group text-sm sm:text-base px-4 sm:px-6"
+								onClick={handleNewsletterSubscribe}
+								disabled={newsletterLoading}
+							>
+								<span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
+								{newsletterLoading ? "Subscribing..." : "Subscribe"}
+							</Button>
+						</div>
+						{newsletterMsg && <p className="text-primary-foreground mt-4 text-sm sm:text-base">{newsletterMsg}</p>}
+					</div>
+				</div>
+			</section>
+
+			{/* Footer */}
+			<footer className="bg-card py-8 sm:py-12 border-t border-border">
+				<div className="w-full px-4 sm:px-6 lg:px-8">
+					<div className="max-w-7xl mx-auto">
+						<div className="grid grid-cols-2 gap-6 sm:gap-8 md:grid-cols-4">
+							<div className="col-span-2 md:col-span-1 animate-in fade-in-50 duration-600">
+								<h4 className="text-base sm:text-lg font-bold text-foreground mb-3 sm:mb-4 font-sans">
+									haven_living_furniture
+								</h4>
+								<p className="text-muted-foreground font-serif text-sm sm:text-base mb-4">
+									Creating beautiful spaces with premium furniture since 2020.
+								</p>
+								<div className="pt-4 border-t border-border">
+									<h5 className="font-semibold text-foreground mb-2 font-sans text-sm">Business Hours</h5>
+									<div className="text-xs sm:text-sm text-muted-foreground font-serif space-y-1">
+										<p>Mon - Sat: 8:00 AM - 7:00 PM</p>
+										<p>Sunday: 12:00 PM - 6:00 PM</p>
+									</div>
+								</div>
+							</div>
+							<div className="animate-in fade-in-50 duration-600 delay-100">
+								<h5 className="font-semibold text-foreground mb-3 sm:mb-4 font-sans text-sm sm:text-base">Shop</h5>
+								<ul className="space-y-2 text-muted-foreground font-serif text-xs sm:text-sm">
+									<li>
+										<Link href="/living-room" className="hover:text-primary transition-colors duration-300">
+											Sofas
+										</Link>
+									</li>
+									<li>
+										<Link href="/bedroom" className="hover:text-primary transition-colors duration-300">
+											Beds
+										</Link>
+									</li>
+									<li>
+										<Link href="/dining" className="hover:text-primary transition-colors duration-300">
+											Dining Sets
+										</Link>
+									</li>
+									<li>
+										<a href="#" className="hover:text-primary transition-colors duration-300">
+											TV Stands
+										</a>
+									</li>
+									<li>
+										<a href="#" className="hover:text-primary transition-colors duration-300">
+											Shoe Racks
+										</a>
+									</li>
+								</ul>
+							</div>
+							<div className="animate-in fade-in-50 duration-600 delay-200">
+								<h5 className="font-semibold text-foreground mb-3 sm:mb-4 font-sans text-sm sm:text-base">Support</h5>
+								<ul className="space-y-2 text-muted-foreground font-serif text-xs sm:text-sm">
+									<li>
+										<Link href="/contact" className="hover:text-primary transition-colors duration-300">
+											Contact Us
+										</Link>
+									</li>
+									<li>
+										<Link href="/faq" className="hover:text-primary transition-colors duration-300">
+											FAQ
+										</Link>
+									</li>
+									<li>
+										<a href="#" className="hover:text-primary transition-colors duration-300">
+											Shipping Info
+										</a>
+									</li>
+									<li>
+										<a href="#" className="hover:text-primary transition-colors duration-300">
+											Returns
+										</a>
+									</li>
+								</ul>
+							</div>
+							<div className="animate-in fade-in-50 duration-600 delay-300">
+								<h5 className="font-semibold text-foreground mb-3 sm:mb-4 font-sans text-sm sm:text-base">Company</h5>
+								<ul className="space-y-2 text-muted-foreground font-serif text-xs sm:text-sm">
+									<li>
+										<Link href="/about" className="hover:text-primary transition-colors duration-300">
+											About Us
+										</Link>
+									</li>
+									<li>
+										<a href="#" className="hover:text-primary transition-colors duration-300">
+											Careers
+										</a>
+									</li>
+									<li>
+										<a href="#" className="hover:text-primary transition-colors duration-300">
+											Press
+										</a>
+									</li>
+									<li>
+										<Link href="/privacy" className="hover:text-primary transition-colors duration-300">
+											Privacy
+										</Link>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div className="border-t border-border mt-6 sm:mt-8 pt-6 sm:pt-8">
+							<div className="flex flex-col items-center justify-center space-y-3 sm:space-y-4 animate-in fade-in-50 duration-800">
+								<div className="flex items-center space-x-3">
+									<Image
+										src="/images/smo-logo.png"
+										alt="SMO Logo"
+										width={24}
+										height={24}
+										className="hover:scale-110 transition-transform duration-300 sm:w-8 sm:h-8"
+									/>
+									<p className="text-muted-foreground font-serif text-xs sm:text-sm text-center">
+										Designed, built and managed by{" "}
+										<a
+											href="https://ondieki1237.github.io/sethbellarin/"
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-primary hover:text-primary/80 transition-colors duration-300 font-semibold hover:underline"
+										>
+											Seth Bellarin
+										</a>
+									</p>
+								</div>
+								<p className="text-muted-foreground font-serif text-xs sm:text-sm text-center">
+									&copy; 2025 haven_living_furniture. All rights reserved.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
+	)
 }
