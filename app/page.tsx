@@ -14,6 +14,7 @@ import { api, type Product as BackendProduct } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import heroImg from "@/public/hero.png"
 import Hero from "@/components/herosection"
+import Navbar from "@/components/navbar"
 
 // Sample testimonials data (replace with API fetch if needed)
 const testimonials = [
@@ -229,8 +230,8 @@ export default function HomePage() {
 
 	// Add this function (or update your existing one)
 	const handleLoadMore = () => {
-		setNewArrivalsCount((prev) => prev + 6);
-	};
+		setNewArrivalsCount((prev) => prev + 6)
+	}
 
 	return (
         <div
@@ -330,84 +331,7 @@ export default function HomePage() {
 			)}
 
 			{/* Navigation */}
-			<nav className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 border-b border-border animate-in slide-in-from-top duration-500 shadow-sm">
-				<div className="w-full px-4 sm:px-6 lg:px-8">
-					<div className="max-w-7xl mx-auto">
-						<div className="flex items-center justify-between h-16">
-							<div className="flex items-center">
-								<Link href="/">
-									<h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary font-sans hover:scale-110 transition-all duration-500 cursor-pointer animate-in fade-in-50 duration-700 hover:text-primary/80 relative group">
-										haven_living_furniture
-										<div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
-									</h1>
-								</Link>
-							</div>
-
-							<div className="hidden md:block">
-								<div className="ml-10 flex items-baseline space-x-6 lg:space-x-8">
-									{["living-room", "bedroom", "dining", "office", "admin"].map((category, index) => (
-										<Link
-											key={category}
-											href={`/${category}`}
-											className="text-muted-foreground hover:text-primary px-2 lg:px-3 py-2 text-sm font-medium transition-all duration-500 font-serif hover:scale-110 animate-in fade-in-50 duration-700 relative group overflow-hidden"
-											style={{ animationDelay: `${(index + 1) * 100}ms` }}
-										>
-											{category.charAt(0).toUpperCase() + category.slice(1).replace("-", " ")}
-											<span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-										</Link>
-									))}
-								</div>
-							</div>
-
-							<div className="flex items-center space-x-2 sm:space-x-4">
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={() => setShowSearch(true)}
-									className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:rotate-12"
-								>
-									<Search className="h-4 w-4 sm:h-5 sm:w-5" />
-								</Button>
-								<Button
-									variant="ghost"
-									size="icon"
-									className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:text-red-500 hidden sm:flex"
-								>
-									<Heart className="h-4 w-4 sm:h-5 sm:w-5" />
-								</Button>
-								<Button
-									variant="ghost"
-									size="icon"
-									className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hover:-rotate-12 relative"
-									onClick={toggleCart}
-								>
-									<ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-									{cart.length > 0 && (
-										<span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full px-1.5 py-0.5 font-bold shadow min-w-[18px] text-center">
-											{cart.length}
-										</span>
-									)}
-								</Button>
-								<Button
-									variant="ghost"
-									size="icon"
-									className="hover:scale-125 transition-all duration-300 hover:bg-primary/10 hidden sm:flex"
-								>
-									<User className="h-4 w-4 sm:h-5 sm:w-5" />
-								</Button>
-								<Button
-									variant="ghost"
-									size="icon"
-									className="md:hidden hover:scale-125 transition-all duration-300 hover:bg-primary/10"
-									onClick={toggleMobileMenu}
-								>
-									<Menu className="h-5 w-5" />
-								</Button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</nav>
+			<Navbar />
 
 			{/* Hero Section */}
 			<Hero />
