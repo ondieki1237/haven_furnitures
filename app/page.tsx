@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { api, type Product as BackendProduct } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import heroImg from "@/public/hero.png"
+import Hero from "@/components/herosection"
 
 // Sample testimonials data (replace with API fetch if needed)
 const testimonials = [
@@ -407,84 +408,8 @@ export default function HomePage() {
 				</div>
 			</nav>
 
-			{/* Improved Hero (Next.js + Tailwind) */}
-			<section role="banner" aria-label="Hero - Luxury furniture" className="relative bg-black overflow-hidden">
-				{/* Background image (LCP) */}
-				<div className="absolute inset-0">
-					<Image
-						src={heroImg}
-						alt="Luxury furniture showcase in a modern living room"
-						fill
-						priority
-						placeholder="blur"
-						sizes="(max-width:640px) 100vw, (max-width:1024px) 80vw, 50vw"
-						className="object-cover object-center"
-						quality={75}
-						aria-hidden="false"
-					/>
-					{/* Strong overlay for legibility + radial "spotlight" */}
-					<div className="absolute inset-0 bg-gradient-to-br from-black/65 via-black/30 to-transparent"></div>
-					<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,90,43,0.12),transparent_55%)] pointer-events-none"></div>
-				</div>
-
-				<div className="relative w-full px-4 sm:px-6 lg:px-8 h-[420px] sm:h-[550px] lg:h-[700px] flex items-center">
-					<div className="max-w-7xl mx-auto w-full z-10">
-						<div className="max-w-2xl space-y-4 sm:space-y-6 lg:space-y-8">
-							{/* fluid typography using clamp for better responsiveness */}
-							<h1
-								className="font-sans font-bold text-white leading-tight tracking-tight"
-								style={{ fontSize: "clamp(1.75rem, 5.5vw, 3.75rem)" }}
-							>
-								Elevate your space —{" "}
-								<span className="text-[#8b5a2b]">Luxury</span>
-								<br />
-								Timeless simplicity, handcrafted comfort
-							</h1>
-
-							<p className="text-sm sm:text-base lg:text-lg text-white/90 font-serif max-w-lg">
-								Curated premium furniture designed to bring warmth and refined simplicity to your home.
-							</p>
-
-							{/* CTA group */}
-							<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
-								<Button
-									size="lg"
-									aria-label="Shop living room furniture"
-									className="bg-[#8b5a2b] text-white hover:bg-[#6f4822] font-serif font-semibold px-6 py-3 rounded-xl border-2 border-[#a67c4f] transition-transform motion-safe:transform-gpu hover:scale-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#8b5a2b]/30"
-									onClick={() => router.push("/living-room")}
-								>
-									<span className="relative z-10">Shop Now</span>
-								</Button>
-
-								<Button
-									variant="outline"
-									size="lg"
-									className="px-6 py-3 rounded-xl border-[#a67c4f] text-[#8b5a2b] bg-transparent hover:bg-white/5 transition-all focus-visible:ring-4 focus-visible:ring-[#8b5a2b]/20"
-									onClick={() => router.push("/about")}
-								>
-									About Us
-								</Button>
-							</div>
-
-							{/* trust/feature row */}
-							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 sm:pt-6 text-center sm:text-left text-white/90">
-								<div>
-									<h4 className="font-semibold text-sm sm:text-base">Quality</h4>
-									<p className="text-xs sm:text-sm font-serif">Unmatched craftsmanship</p>
-								</div>
-								<div>
-									<h4 className="font-semibold text-sm sm:text-base">Style</h4>
-									<p className="text-xs sm:text-sm font-serif">Modern elegance</p>
-								</div>
-								<div>
-									<h4 className="font-semibold text-sm sm:text-base">Comfort</h4>
-									<p className="text-xs sm:text-sm font-serif">Ultimate relaxation</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
+			{/* Hero Section */}
+			<Hero />
 
 			{/* New Arrivals Section */}
 			{newArrivals.length > 0 && (

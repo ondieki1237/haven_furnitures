@@ -49,6 +49,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "express-validator": "latest",
+    "framer-motion": "^12.23.12",
     "geist": "^1.3.1",
     "helmet": "^8.1.0",
     "input-otp": "1.4.1",
