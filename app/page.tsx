@@ -123,6 +123,7 @@ export default function HomePage() {
 	const [newsletterMsg, setNewsletterMsg] = useState("")
 	const [currentIndex, setCurrentIndex] = useState(0) // For testimonials carousel
 	const [featuredCount, setFeaturedCount] = useState(6);
+	const [newArrivalsCount, setNewArrivalsCount] = useState(6); // <--- add this
 	const router = useRouter()
 
 	// Load cart from localStorage on mount
@@ -162,9 +163,9 @@ export default function HomePage() {
 	}, [])
 
 	// Populate new arrivals and sale products (adjust logic as needed)
-	const newArrivals = adminProducts
-		.filter((p) => new Date(p.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
-		.slice(0, 6)
+	const allNewArrivals = adminProducts
+		.filter((p) => new Date(p.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+	const newArrivals = allNewArrivals.slice(0, newArrivalsCount); // <--- use count
 	const saleProducts = adminProducts.filter((p) => p.discount && p.discount > 0).slice(0, 6)
 	const featuredProducts = adminProducts.slice(0, featuredCount); // Show latest 6 products
 
@@ -226,9 +227,9 @@ export default function HomePage() {
 		}
 	}
 
-	// Add this function:
+	// Add this function (or update your existing one)
 	const handleLoadMore = () => {
-		setFeaturedCount((prev) => prev + 6);
+		setNewArrivalsCount((prev) => prev + 6);
 	};
 
 	return (
@@ -414,110 +415,124 @@ export default function HomePage() {
 			{/* New Arrivals Section */}
 			{newArrivals.length > 0 && (
 				<section className="py-12 sm:py-16 bg-gradient-to-b from-white via-[#fdfbf9] to-[#f5f0eb] relative overflow-hidden">
-					{/* Subtle background pattern */}
-					<div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(139,90,43,0.03)_50%,transparent_75%)] bg-[length:50px_50px] animate-pulse"></div>
+                    {/* Subtle background pattern */}
+                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(139,90,43,0.03)_50%,transparent_75%)] bg-[length:50px_50px] animate-pulse"></div>
 
-					<div className="w-full px-4 sm:px-6 lg:px-8 relative">
-						<div className="max-w-7xl mx-auto">
-							{/* Section Header */}
-							<div className="text-center mb-8 sm:mb-12 animate-in fade-in-50 duration-800">
-								<h3 className="text-2xl sm:text-3xl font-bold text-black mb-4 font-serif relative inline-block">
-									New Arrivals
-									<div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-[#8b5a2b] via-black to-[#8b5a2b] rounded-full"></div>
-								</h3>
-								<p className="text-gray-700 font-serif text-sm sm:text-base italic">
-									Fresh additions to our premium collection
-								</p>
-							</div>
+                    <div className="w-full px-4 sm:px-6 lg:px-8 relative">
+                        <div className="max-w-7xl mx-auto">
+                            {/* Section Header */}
+                            <div className="text-center mb-8 sm:mb-12 animate-in fade-in-50 duration-800">
+                                <h3 className="text-2xl sm:text-3xl font-bold text-black mb-4 font-serif relative inline-block">
+                                    New Arrivals
+                                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-[#8b5a2b] via-black to-[#8b5a2b] rounded-full"></div>
+                                </h3>
+                                <p className="text-gray-700 font-serif text-sm sm:text-base italic">
+                                    Fresh additions to our premium collection
+                                </p>
+                            </div>
 
-							{/* Product Grid */}
-							{!isLoaded ? (
-								<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-									{[...Array(6)].map((_, i) => (
-										<Skeleton key={i} className="h-72 sm:h-80 w-full rounded-lg" />
-									))}
-								</div>
-							) : (
-								<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-									{newArrivals.map((product, index) => (
-										<Card
-											key={product._id}
-											className={`group cursor-pointer hover:shadow-xl transition-all duration-700 border border-[#8b5a2b]/20 hover:border-[#8b5a2b] rounded-xl overflow-hidden bg-white`}
-										>
-											{/* Hover overlay */}
-											<div className="absolute inset-0 bg-gradient-to-br from-[#8b5a2b]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                            {/* Product Grid */}
+                            {!isLoaded ? (
+                                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                                    {[...Array(6)].map((_, i) => (
+                                        <Skeleton key={i} className="h-72 sm:h-80 w-full rounded-lg" />
+                                    ))}
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                                        {newArrivals.map((product, index) => (
+                                            <Card
+                                                key={product._id}
+                                                className={`group cursor-pointer hover:shadow-xl transition-all duration-700 border border-[#8b5a2b]/20 hover:border-[#8b5a2b] rounded-xl overflow-hidden bg-white`}
+                                            >
+                                                {/* Hover overlay */}
+                                                <div className="absolute inset-0 bg-gradient-to-br from-[#8b5a2b]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
-											<CardContent className="p-0 relative">
-												{/* Product Image */}
-												<div className="relative aspect-square overflow-hidden">
-													<Image
-														src={product.imageUrl || "/placeholder.svg"}
-														alt={product.name}
-														width={400}
-														height={400}
-														className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-													/>
+                                                <CardContent className="p-0 relative">
+                                                    {/* Product Image */}
+                                                    <div className="relative aspect-square overflow-hidden">
+                                                        <Image
+                                                            src={product.imageUrl || "/placeholder.svg"}
+                                                            alt={product.name}
+                                                            width={400}
+                                                            height={400}
+                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                        />
 
-													{/* "New" Badge */}
-													<Badge className="absolute top-3 left-3 bg-[#8b5a2b] text-white font-serif shadow-md text-xs px-2 py-1 rounded-md">
-														New
-													</Badge>
+                                                        {/* "New" Badge */}
+                                                        <Badge className="absolute top-3 left-3 bg-[#8b5a2b] text-white font-serif shadow-md text-xs px-2 py-1 rounded-md">
+                                                            New
+                                                        </Badge>
 
-													{/* Wishlist Heart */}
-													<Button
-														size="icon"
-														variant="secondary"
-														className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm border border-[#8b5a2b]/30 text-[#8b5a2b] opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 w-8 h-8 rounded-full"
-													>
-														<Heart className="h-3 w-3" />
-													</Button>
-												</div>
+                                                        {/* Wishlist Heart */}
+                                                        <Button
+                                                            size="icon"
+                                                            variant="secondary"
+                                                            className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm border border-[#8b5a2b]/30 text-[#8b5a2b] opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 w-8 h-8 rounded-full"
+                                                        >
+                                                            <Heart className="h-3 w-3" />
+                                                        </Button>
+                                                    </div>
 
-												{/* Product Info */}
-												<div className="p-3 sm:p-5">
-													<h4 className="text-sm sm:text-lg font-semibold text-black mb-1 font-serif group-hover:text-[#8b5a2b] transition-colors duration-500 line-clamp-1">
-														{product.name}
-													</h4>
-													<p className="text-xs sm:text-sm text-gray-600 mb-2 font-light line-clamp-2">
-														{product.description}
-													</p>
+                                                    {/* Product Info */}
+                                                    <div className="p-3 sm:p-5">
+                                                        <h4 className="text-sm sm:text-lg font-semibold text-black mb-1 font-serif group-hover:text-[#8b5a2b] transition-colors duration-500 line-clamp-1">
+                                                            {product.name}
+                                                        </h4>
+                                                        <p className="text-xs sm:text-sm text-gray-600 mb-2 font-light line-clamp-2">
+                                                            {product.description}
+                                                        </p>
 
-													{/* Price + Cart */}
-													<div className="flex items-center justify-between mb-3">
-														<span className="text-base sm:text-xl font-bold text-[#8b5a2b] font-sans group-hover:scale-110 transition-transform duration-300">
-															Ksh {product.price}
-														</span>
-														<Button
-															size="sm"
-															className="bg-[#8b5a2b] text-white hover:bg-black transition-all duration-300 hover:shadow-md
+                                                        {/* Price + Cart */}
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <span className="text-base sm:text-xl font-bold text-[#8b5a2b] font-sans group-hover:scale-110 transition-transform duration-300">
+                                                                Ksh {product.price}
+                                                            </span>
+                                                            <Button
+                                                                size="sm"
+                                                                className="bg-[#8b5a2b] text-white hover:bg-black transition-all duration-300 hover:shadow-md
              text-[10px] sm:text-sm px-2 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-1 sm:gap-2"
-															onClick={() => handleAddToCart(product)}
-														>
-															<ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
-															<span className="hidden sm:inline">Add to Cart</span>
-															<span className="sm:hidden">Add</span>
-														</Button>
-													</div>
+                                                                onClick={() => handleAddToCart(product)}
+                                                            >
+                                                                <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                                <span className="hidden sm:inline">Add to Cart</span>
+                                                                <span className="sm:hidden">Add</span>
+                                                            </Button>
+                                                        </div>
 
-													{/* Interest Form */}
-													<div className="pt-2 border-t border-gray-200">
-														<InterestForm
-															productId={product._id}
-															productName={product.name}
-															productPrice={product.price.toString()}
-															triggerClassName="w-full text-xs sm:text-sm"
-														/>
-													</div>
-												</div>
-											</CardContent>
-										</Card>
-									))}
-								</div>
-							)}
-						</div>
-					</div>
-				</section>
-			)}
+                                                        {/* Interest Form */}
+                                                        <div className="pt-2 border-t border-gray-200">
+                                                            <InterestForm
+                                                                productId={product._id}
+                                                                productName={product.name}
+                                                                productPrice={product.price.toString()}
+                                                                triggerClassName="w-full text-xs sm:text-sm"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                    {/* Load More Button */}
+                                    {newArrivals.length < allNewArrivals.length && (
+                                        <div className="flex justify-center mt-8">
+                                            <Button
+                                                variant="outline"
+                                                className="border-[#8b5a2b] text-[#8b5a2b] hover:bg-[#8b5a2b]/10 font-serif px-8 py-3 rounded-full transition-all duration-300"
+                                                onClick={handleLoadMore}
+                                            >
+                                                Load More
+                                            </Button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </section>
+            )}
 
 			{/* Special Offers Section */}
 			{saleProducts.length > 0 && (
