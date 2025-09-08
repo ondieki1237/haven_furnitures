@@ -334,6 +334,7 @@ export default function HomePage() {
 			<Navbar
 				onShowSearch={() => setShowSearch(true)}
 				onShowCart={() => setShowCart(true)}
+				cartCount={cart.length} // <-- pass cart count here
 			/>
 
 			{/* Hero Section */}

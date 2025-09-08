@@ -11,9 +11,11 @@ const cart = []; // Example: [{ id: 1, name: "Luxe Velvet Sofa" }, ...]
 export default function Navbar({
   onShowSearch,
   onShowCart,
+  cartCount = 0, // <-- add cartCount prop with default
 }: {
   onShowSearch: () => void;
   onShowCart: () => void;
+  cartCount?: number;
 }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -111,9 +113,9 @@ export default function Navbar({
                 onClick={onShowCart}
               >
                 <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-                {cart.length > 0 && (
+                {cartCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-[#8b5a2b] text-white text-xs rounded-full px-1.5 py-0.5 font-bold shadow min-w-[18px] text-center">
-                    {cart.length}
+                    {cartCount}
                   </span>
                 )}
               </Button>
@@ -208,9 +210,9 @@ export default function Navbar({
                 }}
               >
                 <ShoppingCart className="h-6 w-6" />
-                {cart.length > 0 && (
+                {cartCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-[#8b5a2b] text-white text-xs rounded-full px-1.5 py-0.5 font-bold shadow min-w-[18px] text-center">
-                    {cart.length}
+                    {cartCount}
                   </span>
                 )}
               </Button>
