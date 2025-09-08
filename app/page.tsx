@@ -940,6 +940,20 @@ export default function HomePage() {
 					</div>
 				</div>
 			</footer>
+
+			<a
+				href={`https://wa.me/254741926724?text=I'm%20interested%20in%20these%20products:%20${encodeURIComponent(cart.map(item => item.name).join(", "))}%20Total:%20Ksh%20${cart.reduce((sum, item) => sum + Number(item.price), 0)}`}
+				target="_blank"
+				rel="noopener noreferrer"
+				className="w-full inline-block mt-4"
+			>
+				<Button
+					variant="outline"
+					className="w-full bg-[#25D366] text-white hover:bg-[#128C7E] transition-all duration-300"
+				>
+					Message on WhatsApp
+				</Button>
+			</a>
 		</div>
 	)
 }
