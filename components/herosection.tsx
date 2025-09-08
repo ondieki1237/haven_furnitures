@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Award, Heart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 // Mock product data - replace with your actual images
 const featuredProducts = [
@@ -78,19 +79,25 @@ export default function Hero() {
 						className="flex flex-col sm:flex-row gap-5"
 					>
 						<Button
+							asChild
 							size="lg"
 							className="bg-gradient-to-r from-[#8b5a2b] to-[#6f4822] hover:shadow-xl hover:scale-105 transition-all duration-300 text-white px-8 py-6 text-lg font-semibold rounded-full group"
 						>
-							Explore Collection
-							<ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+							<Link href="/living-room">
+								Explore Collection
+								<ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+							</Link>
 						</Button>
 
 						<Button
+							asChild
 							variant="outline"
 							size="lg"
 							className="px-8 py-6 text-lg border-[#8b5a2b] text-[#8b5a2b] hover:bg-[#8b5a2b]/10 hover:text-[#6f4822] rounded-full transition-all duration-300 backdrop-blur-sm"
 						>
-							View Catalog
+							<Link href="/contact">
+								Contact Us
+							</Link>
 						</Button>
 					</motion.div>
 
