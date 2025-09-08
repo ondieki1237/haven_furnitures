@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "../styles/globals.css"
+import ClientLayout from "@/components/client-layout";
 
 export const metadata: Metadata = {
   title: "Haven Furnitures - Premium Home Furniture",
@@ -15,7 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <body>{children}</body>
+      <body>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+      </body>
     </html>
   )
 }

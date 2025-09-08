@@ -8,15 +8,16 @@ import { useState } from "react";
 // Mock cart data - replace with your actual cart state
 const cart = []; // Example: [{ id: 1, name: "Luxe Velvet Sofa" }, ...]
 
-export default function Navbar() {
+export default function Navbar({
+  onShowSearch,
+  onShowCart,
+}: {
+  onShowSearch: () => void;
+  onShowCart: () => void;
+}) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
 
   const toggleMobileMenu = () => setShowMobileMenu(!showMobileMenu);
-  const toggleCart = () => {
-    // Implement cart toggle logic here
-    console.log("Cart toggled");
-  };
 
   // Animation variants for nav links
   const linkVariants = {
@@ -91,7 +92,7 @@ export default function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setShowSearch(true)}
+                onClick={onShowSearch}
                 className="hover:scale-125 transition-all duration-300 hover:bg-[#8b5a2b]/10 hover:text-[#8b5a2b] rounded-full"
               >
                 <Search className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -107,7 +108,7 @@ export default function Navbar() {
                 variant="ghost"
                 size="icon"
                 className="hover:scale-125 transition-all duration-300 hover:bg-[#8b5a2b]/10 hover:text-[#8b5a2b] relative rounded-full"
-                onClick={toggleCart}
+                onClick={onShowCart}
               >
                 <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                 {cart.length > 0 && (
@@ -183,7 +184,7 @@ export default function Navbar() {
                 variant="ghost"
                 size="icon"
                 onClick={() => {
-                  setShowSearch(true);
+                  onShowSearch();
                   toggleMobileMenu();
                 }}
                 className="hover:scale-125 transition-all duration-300 hover:bg-[#8b5a2b]/10 hover:text-[#8b5a2b] rounded-full"
@@ -202,7 +203,7 @@ export default function Navbar() {
                 size="icon"
                 className="hover:scale-125 transition-all duration-300 hover:bg-[#8b5a2b]/10 hover:text-[#8b5a2b] relative rounded-full"
                 onClick={() => {
-                  toggleCart();
+                  onShowCart();
                   toggleMobileMenu();
                 }}
               >

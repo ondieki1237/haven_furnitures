@@ -331,7 +331,10 @@ export default function HomePage() {
 			)}
 
 			{/* Navigation */}
-			<Navbar />
+			<Navbar
+				onShowSearch={() => setShowSearch(true)}
+				onShowCart={() => setShowCart(true)}
+			/>
 
 			{/* Hero Section */}
 			<Hero />
