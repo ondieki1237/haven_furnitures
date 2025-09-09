@@ -63,6 +63,11 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Express example
+app.get("/api/ping", (req, res) => {
+  res.json({ ok: true, message: "pong" });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

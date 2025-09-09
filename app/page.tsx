@@ -233,6 +233,15 @@ export default function HomePage() {
 		setNewArrivalsCount((prev) => prev + 6)
 	}
 
+	useEffect(() => {
+		const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://haven-furnitures.onrender.com";
+		const interval = setInterval(() => {
+			fetch(`${apiUrl}/api/ping`).catch(() => {});
+		}, 1000 * 60 * 14); // every 14 minutes
+
+		return () => clearInterval(interval);
+	}, []);
+
 	return (
         <div
             className="min-h-screen bg-gradient-to-b from-white via-[#fdfbf9] to-[#f5f0eb] relative overflow-x-hidden"
@@ -942,18 +951,24 @@ export default function HomePage() {
 			</footer>
 
 			<a
-				href={`https://wa.me/254741926724?text=I'm%20interested%20in%20these%20products:%20${encodeURIComponent(cart.map(item => item.name).join(", "))}%20Total:%20Ksh%20${cart.reduce((sum, item) => sum + Number(item.price), 0)}`}
-				target="_blank"
-				rel="noopener noreferrer"
-				className="w-full inline-block mt-4"
-			>
-				<Button
-					variant="outline"
-					className="w-full bg-[#25D366] text-white hover:bg-[#128C7E] transition-all duration-300"
-				>
-					Message on WhatsApp
-				</Button>
-			</a>
+  href={`https://wa.me/254741926724?text=I'm%20interested%20in%20these%20products:%20${encodeURIComponent(
+    cart.map(item => item.name).join(", ")
+  )}%20Total:%20Ksh%20${cart.reduce((sum, item) => sum + Number(item.price), 0)}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="w-full inline-block mt-4"
+>
+  <Button
+    variant="outline"
+    className="w-full bg-[#25D366] text-white hover:bg-[#128C7E] transition-all duration-300"
+  >
+    {/* For desktop (sm and above) */}
+    <span className="hidden sm:inline">Message on WhatsApp</span>
+    {/* For mobile (below sm) */}
+    <span className="inline sm:hidden">WhatsApp</span>
+  </Button>
+</a>
+
 		</div>
 	)
 }

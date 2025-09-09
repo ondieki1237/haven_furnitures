@@ -4,15 +4,18 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, Heart, Search, ArrowLeft } from "lucide-react"
+import { Star, ShoppingCart, Heart } from "lucide-react"
 import { InterestForm } from "@/components/interest-form"
 import Link from "next/link"
 import { api, type Product as BackendProduct } from "@/lib/api"
+// import Footer from "@/components/footer" // <-- Import Footer
 
 type Product = BackendProduct
 
 export default function OfficePage() {
   const [adminProducts, setAdminProducts] = useState<Product[]>([])
+  const [filter, setFilter] = useState<string>("all")
+  const [visibleCount, setVisibleCount] = useState(6)
 
   useEffect(() => {
     ;(async () => {
@@ -27,7 +30,7 @@ export default function OfficePage() {
 
   const sampleProducts = [
     {
-      id: "of-1",
+      _id: "of-1",
       name: "Executive Desk",
       price: 198750,
       description: "Large executive desk with built-in drawers and cable management system",
@@ -37,7 +40,7 @@ export default function OfficePage() {
       badge: "Best Seller",
     },
     {
-      id: "of-2",
+      _id: "of-2",
       name: "Ergonomic Office Chair",
       price: 134560,
       description: "High-back ergonomic chair with lumbar support and adjustable height",
@@ -46,7 +49,7 @@ export default function OfficePage() {
       reviews: 234,
     },
     {
-      id: "of-3",
+      _id: "of-3",
       name: "Bookshelf Unit",
       price: 89340,
       description: "5-tier wooden bookshelf with adjustable shelves and modern design",
@@ -59,9 +62,16 @@ export default function OfficePage() {
 
   const allProducts = adminProducts.length > 0 ? adminProducts : sampleProducts
 
-  return (
-    <div className="min-h-screen bg-background">
+  // Filtering logic
+  const filteredProducts =
+    filter === "all"
+      ? allProducts
+      : allProducts.filter((p) => p.badge === filter)
 
+  const displayedProducts = filteredProducts.slice(0, visibleCount)
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Hero Section */}
       <section className="relative h-[400px] bg-gradient-to-br from-background via-muted/50 to-accent/30 overflow-hidden">
         <div className="absolute inset-0 bg-primary/5"></div>
@@ -92,11 +102,38 @@ export default function OfficePage() {
         </div>
       </section>
 
+      {/* Filter Bar */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="flex gap-2 mb-6">
+          <Button
+            variant={filter === "all" ? "default" : "outline"}
+            onClick={() => { setFilter("all"); setVisibleCount(6); }}
+            className="font-serif"
+          >
+            All
+          </Button>
+          <Button
+            variant={filter === "Best Seller" ? "default" : "outline"}
+            onClick={() => { setFilter("Best Seller"); setVisibleCount(6); }}
+            className="font-serif"
+          >
+            Best Seller
+          </Button>
+          <Button
+            variant={filter === "New" ? "default" : "outline"}
+            onClick={() => { setFilter("New"); setVisibleCount(6); }}
+            className="font-serif"
+          >
+            New
+          </Button>
+        </div>
+      </section>
+
       {/* Products Grid */}
-      <section className="py-16 bg-background">
+      <section className="py-16 bg-background flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {allProducts.map((product, index) => (
+            {displayedProducts.map((product, index) => (
               <Card
                 key={product._id}
                 className={`group cursor-pointer hover:shadow-xl transition-all duration-500 border-border hover:border-primary/20 animate-in slide-in-from-bottom duration-700 delay-${((index % 3) + 1) * 100} hover:-translate-y-3`}
@@ -182,16 +219,24 @@ export default function OfficePage() {
       {/* Load More */}
       <section className="py-8 bg-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Button
-            size="lg"
-            variant="outline"
-            className="font-serif hover:scale-105 transition-transform duration-200 animate-in fade-in-50 duration-600 bg-transparent"
-          >
-            Load More Products
-          </Button>
-          <p className="text-sm text-muted-foreground mt-4 font-serif">Showing 3 of 45+ office items</p>
+          {visibleCount < filteredProducts.length && (
+            <Button
+              size="lg"
+              variant="outline"
+              className="font-serif hover:scale-105 transition-transform duration-200 animate-in fade-in-50 duration-600 bg-transparent"
+              onClick={() => setVisibleCount((prev) => prev + 6)}
+            >
+              Load More Products
+            </Button>
+          )}
+          <p className="text-sm text-muted-foreground mt-4 font-serif">
+            Showing {Math.min(visibleCount, filteredProducts.length)} of {filteredProducts.length} office items
+          </p>
         </div>
       </section>
+
+      {/* Footer */}
+      {/* <Footer /> */}
     </div>
   )
 }
