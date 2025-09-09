@@ -21,7 +21,21 @@ const validateProduct = [
     .isLength({ min: 10, max: 1000 })
     .withMessage("Description is required (10-1000 characters)"),
   body("price").isFloat({ min: 0 }).withMessage("Price must be a positive number"),
-  body("category").isIn(["sofas", "beds", "dining-sets", "tv-stands", "shoe-racks"]).withMessage("Invalid category"),
+  body("category")
+    .isIn([
+      "sofa sets",
+      "coffee tables",
+      "stools",
+      "consoles",
+      "dressing mirror",
+      "dinning sets",
+      "beds",
+      "tv stands",
+      "shoe racks",
+      "wall drobes",
+      "kids beds"
+    ])
+    .withMessage("Invalid category"),
   body("inStock").isBoolean().withMessage("Stock status must be boolean"),
   body("featured").optional().isBoolean().withMessage("Featured status must be boolean"),
   handleValidationErrors,

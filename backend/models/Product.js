@@ -23,8 +23,20 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Product category is required"],
       enum: {
-        values: ["sofas", "beds", "dining-sets", "tv-stands", "shoe-racks"],
-        message: "Category must be one of: sofas, beds, dining-sets, tv-stands, shoe-racks",
+        values: [
+          "sofa sets",
+          "coffee tables",
+          "stools",
+          "consoles",
+          "dressing mirror",
+          "dinning sets",
+          "beds",
+          "tv stands",
+          "shoe racks",
+          "wall drobes",
+          "kids beds"
+        ],
+        message: "Category must be one of: sofa sets, coffee tables, stools, consoles, dressing mirror, dinning sets, beds, tv stands, shoe racks, wall drobes, kids beds",
       },
     },
     imageUrl: {
