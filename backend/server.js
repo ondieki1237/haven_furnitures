@@ -29,6 +29,7 @@ app.use(
   cors({
     origin: [
       "https://haven-furnitures.vercel.app", // production frontend
+      "https://backendmanager.vercel.app", // backend manager
       process.env.FRONTEND_URL || "http://localhost:3000", // fallback from .env
       "http://localhost:3001",
       "http://localhost:3002",
