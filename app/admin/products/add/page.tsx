@@ -218,17 +218,17 @@ const uploadToCloudinary = async (file: File) => {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sofa-sets">Sofa Sets</SelectItem>
-                    <SelectItem value="coffee-tables">Coffee Tables</SelectItem>
+                    <SelectItem value="sofa sets">Sofa Sets</SelectItem>
+                    <SelectItem value="coffee tables">Coffee Tables</SelectItem>
                     <SelectItem value="stools">Stools</SelectItem>
                     <SelectItem value="consoles">Consoles</SelectItem>
-                    <SelectItem value="dressing-mirror">Dressing Mirror</SelectItem>
-                    <SelectItem value="dinning-sets">Dinning Sets</SelectItem>
+                    <SelectItem value="dressing mirror">Dressing Mirror</SelectItem>
+                    <SelectItem value="dinning sets">Dinning Sets</SelectItem>
                     <SelectItem value="beds">Beds</SelectItem>
-                    <SelectItem value="tv-stands">TV Stands</SelectItem>
-                    <SelectItem value="shoe-racks">Shoe Racks</SelectItem>
-                    <SelectItem value="wall-drobes">Wall Drobes</SelectItem>
-                    <SelectItem value="kids-beds">Kids Beds</SelectItem>
+                    <SelectItem value="tv stands">TV Stands</SelectItem>
+                    <SelectItem value="shoe racks">Shoe Racks</SelectItem>
+                    <SelectItem value="wall drobes">Wall Drobes</SelectItem>
+                    <SelectItem value="kids beds">Kids Beds</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -184,86 +184,122 @@ export default function Navbar({
           </div>
 
           {/* Mobile Menu Content */}
-          <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center py-8">
-            <div className="flex flex-col items-center space-y-4 w-full max-w-md px-4">
-              {["living-room", "bedroom", "dining", "office", "admin"].map(
-                (category, index) => (
-                  <motion.div
-                    key={category}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={linkVariants}
-                    className="w-full"
-                  >
-                    <Link
-                      href={`/${category}`}
-                      className="block text-lg font-serif text-[#2d1a06] hover:text-[#8b5a2b] transition-all duration-300 hover:scale-105 relative group py-3 px-4 rounded-lg hover:bg-[#8b5a2b]/10"
-                      onClick={toggleMobileMenu}
-                    >
-                      {category
-                        .charAt(0)
-                        .toUpperCase() + category.slice(1).replace("-", " ")}
-                      <span className="absolute bottom-1 left-4 w-0 h-0.5 bg-[#8b5a2b] transition-all duration-300 group-hover:w-[calc(100%-2rem)]"></span>
-                    </Link>
-                  </motion.div>
-                )
-              )}
-              {/* Mobile Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.75, duration: 0.5 }}
-                className="flex space-x-6 pt-6"
+          {showMobileMenu && (
+  <motion.div
+    variants={mobileMenuVariants}
+    initial="hidden"
+    animate="visible"
+    exit="exit"
+    className="md:hidden fixed top-0 right-0 h-full w-4/5 max-w-sm bg-[#f9f6f2]/95 backdrop-blur-xl z-50 flex flex-col shadow-2xl border-l border-[#e7e1d6]/50"
+    role="dialog"
+    aria-expanded={showMobileMenu}
+    aria-label="Mobile navigation menu"
+  >
+    {/* Mobile Menu Header */}
+    <div className="flex items-center justify-between p-4 border-b border-[#e7e1d6]/50">
+      <Link href="/" onClick={toggleMobileMenu}>
+        <motion.h1
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="text-lg font-bold text-[#2d1a06] font-sans hover:text-[#8b5a2b]/80"
+        >
+          haven_living_furniture
+        </motion.h1>
+      </Link>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="hover:bg-[#8b5a2b]/20 hover:text-[#8b5a2b] rounded-full"
+        onClick={toggleMobileMenu}
+        aria-label="Close mobile menu"
+      >
+        <X className="h-6 w-6" />
+      </Button>
+    </div>
+
+    {/* Mobile Menu Content */}
+    <div className="flex flex-col flex-1 p-6 space-y-6 overflow-y-auto">
+      {/* Navigation Links */}
+      <div className="flex flex-col space-y-4">
+        {["living-room", "bedroom", "dining", "office", "admin"].map(
+          (category, index) => (
+            <motion.div
+              key={category}
+              custom={index}
+              initial="hidden"
+              animate="visible"
+              variants={linkVariants}
+            >
+              <Link
+                href={`/${category}`}
+                className="block text-base font-serif text-[#2d1a06] hover:text-[#8b5a2b] transition-all duration-300 py-2 px-3 rounded-md hover:bg-[#8b5a2b]/10"
+                onClick={toggleMobileMenu}
               >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    onShowSearch();
-                    toggleMobileMenu();
-                  }}
-                  className="hover:scale-110 transition-all duration-300 hover:bg-[#8b5a2b]/20 hover:text-[#8b5a2b] rounded-full shadow-sm"
-                  aria-label="Search"
-                >
-                  <Search className="h-7 w-7" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:scale-110 transition-all duration-300 hover:bg-[#8b5a2b]/20 hover:text-red-500 rounded-full shadow-sm"
-                  aria-label="Wishlist"
-                >
-                  <Heart className="h-7 w-7" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:scale-110 transition-all duration-300 hover:bg-[#8b5a2b]/20 hover:text-[#8b5a2b] relative rounded-full shadow-sm"
-                  onClick={() => {
-                    onShowCart();
-                    toggleMobileMenu();
-                  }}
-                  aria-label="Shopping Cart"
-                >
-                  <ShoppingCart className="h-7 w-7" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-[#8b5a2b] text-white text-xs rounded-full px-2 py-1 font-bold shadow min-w-[20px] text-center">
-                      {cartCount}
-                    </span>
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:scale-110 transition-all duration-300 hover:bg-[#8b5a2b]/20 hover:text-[#8b5a2b] rounded-full shadow-sm"
-                  aria-label="User Profile"
-                >
-                  <User className="h-7 w-7" />
-                </Button>
-              </motion.div>
-            </div>
-          </div>
+                {category.charAt(0).toUpperCase() +
+                  category.slice(1).replace("-", " ")}
+              </Link>
+            </motion.div>
+          )
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.75, duration: 0.5 }}
+        className="flex flex-wrap gap-4 pt-4"
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            onShowSearch();
+            toggleMobileMenu();
+          }}
+          className="hover:bg-[#8b5a2b]/20 hover:text-[#8b5a2b] rounded-full"
+          aria-label="Search"
+        >
+          <Search className="h-6 w-6" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hover:bg-[#8b5a2b]/20 hover:text-red-500 rounded-full"
+          aria-label="Wishlist"
+        >
+          <Heart className="h-6 w-6" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hover:bg-[#8b5a2b]/20 hover:text-[#8b5a2b] relative rounded-full"
+          onClick={() => {
+            onShowCart();
+            toggleMobileMenu();
+          }}
+          aria-label="Shopping Cart"
+        >
+          <ShoppingCart className="h-6 w-6" />
+          {cartCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-[#8b5a2b] text-white text-xs rounded-full px-2 py-1 font-bold shadow min-w-[20px] text-center">
+              {cartCount}
+            </span>
+          )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hover:bg-[#8b5a2b]/20 hover:text-[#8b5a2b] rounded-full"
+          aria-label="User Profile"
+        >
+          <User className="h-6 w-6" />
+        </Button>
+      </motion.div>
+    </div>
+  </motion.div>
+)}
 
           {/* Subtle Background Overlay */}
           <div

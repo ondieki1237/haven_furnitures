@@ -182,11 +182,7 @@ export default function ContactPage() {
                       <div>
                         <h3 className="text-lg font-semibold text-foreground mb-2 font-sans">Visit Our Showroom</h3>
                         <p className="text-muted-foreground font-serif">
-                          Westlands Shopping Center
-                          <br />
-                          2nd Floor, Shop 204
-                          <br />
-                          Nairobi, Kenya
+                          Utawala Nairobi
                         </p>
                       </div>
                     </div>
@@ -202,9 +198,7 @@ export default function ContactPage() {
                       <div>
                         <h3 className="text-lg font-semibold text-foreground mb-2 font-sans">Call Us</h3>
                         <p className="text-muted-foreground font-serif">
-                          +254 700 123 456
-                          <br />
-                          +254 733 987 654
+                          0741 926 724
                         </p>
                       </div>
                     </div>
@@ -220,9 +214,7 @@ export default function ContactPage() {
                       <div>
                         <h3 className="text-lg font-semibold text-foreground mb-2 font-sans">Email Us</h3>
                         <p className="text-muted-foreground font-serif">
-                          info@havenfurnitures.co.ke
-                          <br />
-                          sales@havenfurnitures.co.ke
+                          havenlivingfurnitures@gmail.com
                         </p>
                       </div>
                     </div>
