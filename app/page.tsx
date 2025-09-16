@@ -118,7 +118,6 @@ export default function HomePage() {
 	const [showSearch, setShowSearch] = useState(false)
 	const [cart, setCart] = useState<Product[]>([])
 	const [showCart, setShowCart] = useState(false)
-	const [showMobileMenu, setShowMobileMenu] = useState(false)
 	const [newsletterEmail, setNewsletterEmail] = useState("")
 	const [newsletterLoading, setNewsletterLoading] = useState(false)
 	const [newsletterMsg, setNewsletterMsg] = useState("")
@@ -187,10 +186,6 @@ export default function HomePage() {
 	// Toggle cart modal
 	const toggleCart = () => {
 		setShowCart(!showCart)
-	}
-
-	const toggleMobileMenu = () => {
-		setShowMobileMenu(!showMobileMenu)
 	}
 
 	// Handle next slide for testimonials
@@ -307,34 +302,6 @@ export default function HomePage() {
 								</div>
 							</div>
 						)}
-					</div>
-				</div>
-			)}
-
-			{showMobileMenu && (
-				<div className="fixed inset-0 z-50 bg-black/50 md:hidden" onClick={() => setShowMobileMenu(false)}>
-					<div
-						className="bg-background w-64 h-full p-6 shadow-xl animate-in slide-in-from-left duration-300"
-						onClick={(e) => e.stopPropagation()}
-					>
-						<div className="flex justify-between items-center mb-8">
-							<h2 className="text-xl font-bold text-primary font-sans">Menu</h2>
-							<Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
-								<X className="h-6 w-6" />
-							</Button>
-						</div>
-						<nav className="space-y-4">
-							{["living-room", "bedroom", "dining", "office", "admin"].map((category) => (
-								<Link
-									key={category}
-									href={`/${category}`}
-									className="block text-muted-foreground hover:text-primary py-3 text-lg font-medium transition-colors duration-300 font-serif border-b border-border/50"
-									onClick={() => setShowMobileMenu(false)}
-								>
-									{category.charAt(0).toUpperCase() + category.slice(1).replace("-", " ")}
-								</Link>
-							))}
-						</nav>
 					</div>
 				</div>
 			)}
@@ -963,7 +930,7 @@ export default function HomePage() {
     className="w-full bg-[#25D366] text-white hover:bg-[#128C7E] transition-all duration-300"
   >
     {/* For desktop (sm and above) */}
-    <span className="hidden sm:inline">Message on WhatsApp</span>
+    <span className="hidden sm:inline">WhatsApp</span>
     {/* For mobile (below sm) */}
     <span className="inline sm:hidden">WhatsApp</span>
   </Button>
