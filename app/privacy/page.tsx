@@ -77,7 +77,7 @@ export default function PrivacyPage() {
                   <h2 className="text-2xl font-semibold text-foreground mb-4 font-sans">Contact Us</h2>
                   <p className="text-muted-foreground font-serif leading-relaxed">
                     If you have any questions about this Privacy Policy, please contact us at
-                    privacy@havenfurnitures.co.ke or call us at +254 700 123 456.
+                    privacy@havenfurnitures.co.ke or call us at +254 741 926 724.
                   </p>
                 </div>
               </CardContent>

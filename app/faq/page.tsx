@@ -179,7 +179,7 @@ export default function FAQPage() {
                     variant="outline"
                     className="font-serif hover:scale-105 transition-transform duration-200 bg-transparent"
                   >
-                    Call +254 700 123 456
+                    Call +254 7419267247
                   </Button>
                 </div>
               </CardContent>

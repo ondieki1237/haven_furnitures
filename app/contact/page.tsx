@@ -115,7 +115,7 @@ export default function ContactPage() {
                           value={formData.phone}
                           onChange={handleChange}
                           className="font-serif"
-                          placeholder="+254 700 000 000"
+                          placeholder="+254741926724"
                         />
                       </div>
                       <div>
