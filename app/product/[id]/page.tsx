@@ -286,7 +286,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   <p className="text-muted-foreground font-serif text-sm sm:text-base text-center">
                     Designed, built and managed by{" "}
                     <a
-                      href="https://ondieki1237.github.io/sethbellarin/"
+                      href="https://www.codewithseth.co.ke/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:text-primary/80 transition-colors duration-300 font-semibold hover:underline"

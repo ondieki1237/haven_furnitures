@@ -203,7 +203,7 @@ export default function HomePage() {
 		setNewsletterLoading(true)
 		setNewsletterMsg("")
 		try {
-			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://haven-furnitures.onrender.com"
+			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://www.codewithseth.co.ke/"
 			const res = await fetch(`${apiUrl}/api/subscribe`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -229,7 +229,7 @@ export default function HomePage() {
 	}
 
 	useEffect(() => {
-		const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://haven-furnitures.onrender.com";
+		const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://www.codewithseth.co.ke/";
 		const interval = setInterval(() => {
 			fetch(`${apiUrl}/api/ping`).catch(() => {});
 		}, 1000 * 60 * 14); // every 14 minutes
@@ -899,7 +899,7 @@ export default function HomePage() {
 									<p className="text-muted-foreground font-serif text-xs sm:text-sm text-center">
 										Designed, built and managed by{" "}
 										<a
-											href="https://ondieki1237.github.io/sethbellarin/"
+											href="https://www.codewithseth.co.ke/"
 											target="_blank"
 											rel="noopener noreferrer"
 											className="text-primary hover:text-primary/80 transition-colors duration-300 font-semibold hover:underline"

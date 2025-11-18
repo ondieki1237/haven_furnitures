@@ -83,5 +83,5 @@ This file lists all backend API endpoints for Haven Furnitures and their uses.
 
 **Note:**  
 - All endpoints are relative to your backend root:  
-  `https://haven-furnitures.onrender.com`
+  `https://haven.codewithseth.co.ke/`
 - Some endpoints may require authentication.

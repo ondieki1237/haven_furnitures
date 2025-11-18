@@ -24,24 +24,18 @@ const limiter = rateLimit({
 });
 app.use("/api/", limiter);
 
-// ✅ CORS configuration (added Vercel domain)
+// CORS configuration - allow all origins by reflecting request origin.
+// This effectively allows requests from any origin and still supports credentials.
+// Restart the server after making changes.
 app.use(
   cors({
-    origin: [
-      "https://haven-furnitures.vercel.app", // production frontend
-      "https://backendmanager.vercel.app", // backend manager
-      process.env.FRONTEND_URL || "http://localhost:3000", // fallback from .env
-      "http://localhost:3001",
-      "http://localhost:3002",
-      "http://localhost:3003",
-      "http://127.0.0.1:3000",
-      "http://127.0.0.1:3001",
-      "http://127.0.0.1:3002",
-      "http://127.0.0.1:3003",
-    ],
+    origin: true, // reflect the request origin, enabling CORS for all origins
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Origin", "Accept"],
+    exposedHeaders: ["Content-Range", "X-Total-Count"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
 );
 
