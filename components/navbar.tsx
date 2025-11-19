@@ -24,11 +24,11 @@ export default function Navbar({
   // Animation variants for nav links
   const linkVariants = {
     hidden: { opacity: 0, y: -20 },
-    visible: (i: number) => ({
+    visible: {
       opacity: 1,
       y: 0,
-      transition: { delay: i * 0.15, duration: 0.5, ease: "easeOut" },
-    }),
+      transition: { duration: 0.5, ease: "easeInOut" },
+    },
   };
 
   // Animation variants for mobile menu
@@ -37,12 +37,12 @@ export default function Navbar({
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.4, ease: "easeOut" },
+      transition: { duration: 0.4, ease: "easeInOut" },
     },
     exit: {
       opacity: 0,
       x: "100%",
-      transition: { duration: 0.3, ease: "easeIn" },
+      transition: { duration: 0.3, ease: "easeInOut" },
     },
   };
 
@@ -53,7 +53,13 @@ export default function Navbar({
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/">
+              <Link href="/" className="flex items-center gap-2">
+                <img
+                  src="/haven_logo.jpeg"
+                  alt="Haven Living Furniture Logo"
+                  className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover shadow-md border border-[#8b5a2b]/30"
+                  style={{ background: '#fff' }}
+                />
                 <motion.h1
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
